@@ -1,0 +1,16 @@
+sudo: false
+language: python
+cache: pip
+python:
+  - "2.7"
+  - "3.5"
+env:
+  - CFLAGS="-std=c99"
+install:
+  - pip install -U pip setuptools
+  - pip install tox-travis codecov
+  - pip install -r requirements-dev.txt
+script:
+  - tox
+  - py.test --cov=gym_puyopuyo
+after_success: codecov -e TRAVIS_PYTHON_VERSION

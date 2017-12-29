@@ -1,0 +1,6 @@
+[run]
+branch = True
+omit =
+    *migrations*
+    *site-packages*
+    *tests*
