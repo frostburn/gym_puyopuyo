@@ -2,6 +2,8 @@ from __future__ import unicode_literals
 
 import sys
 
+import numpy as np
+
 import puyocore as core
 from gym_puyopuyo.util import print_color, print_reset
 
@@ -9,10 +11,14 @@ from gym_puyopuyo.util import print_color, print_reset
 class BottomState(object):
     WIDTH = 8
     HEIGHT = 8
+    CLEAR_THRESHOLD = 4
 
     def __init__(self, num_colors):
-        self.data = bytearray(8 * num_colors)
         self.num_colors = num_colors
+        self.reset()
+
+    def reset(self):
+        self.data = bytearray(8 * self.num_colors)
 
     def render(self, outfile=sys.stdout):
         for i in range(self.HEIGHT):
@@ -44,6 +50,10 @@ class BottomState(object):
     def resolve(self):
         return core.bottom_resolve(self.data, self.num_colors)
 
+    def encode(self):
+        data = core.bottom_encode(self.data, self.num_colors)
+        return np.fromstring(data, dtype="int8").reshape(self.num_colors, self.HEIGHT, self.WIDTH)
+
     def to_list(self):
         result = []
         for i in range(self.HEIGHT):
@@ -54,6 +64,11 @@ class BottomState(object):
                         puyo = k
                 result.append(puyo)
         return result
+
+    def clone(self):
+        clone = BottomState(self.num_colors)
+        clone.data = self.data[:]
+        return clone
 
     @classmethod
     def from_list(cls, stack, num_colors=None):

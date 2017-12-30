@@ -113,6 +113,18 @@ int bottom_resolve(puyos_t *floor, int num_colors) {
   return chain;
 }
 
+char* bottom_encode(puyos_t *floor, int num_colors) {
+  char* data = malloc(num_colors * WIDTH * BOTTOM_HEIGHT * sizeof(char));
+  puyos_t p = 1;
+  for (int j = 0; j < WIDTH * BOTTOM_HEIGHT; ++j) {
+    for (int i = 0; i < num_colors; ++i) {
+      data[j + i * WIDTH * BOTTOM_HEIGHT] = !!(p & floor[i]);
+    }
+    p <<= 1;
+  }
+  return data;
+}
+
 # if (PY_MAJOR_VERSION == 2)
   static PyObject *
   py_bottom_render(PyObject *self, PyObject *args)
@@ -157,6 +169,23 @@ int bottom_resolve(puyos_t *floor, int num_colors) {
     int chain = bottom_resolve(data->ob_bytes, num_colors);
 
     return Py_BuildValue("i", chain);
+  }
+
+  static PyObject *
+  py_bottom_encode(PyObject *self, PyObject *args)
+  {
+    int num_colors;
+    const PyByteArrayObject *data;
+
+    if (!PyArg_ParseTuple(args, "Oi", &data, &num_colors))
+    {
+      return NULL;
+    }
+    char *encoded = bottom_encode(data->ob_bytes, num_colors);
+
+    PyObject *result = Py_BuildValue("z#", encoded, num_colors * WIDTH * BOTTOM_HEIGHT);
+    free(encoded);
+    return result;
   }
 #else
   static PyObject *
@@ -203,12 +232,30 @@ int bottom_resolve(puyos_t *floor, int num_colors) {
 
     return Py_BuildValue("i", chain);
   }
+
+  static PyObject *
+  py_bottom_encode(PyObject *self, PyObject *args)
+  {
+    int num_colors;
+    const PyByteArrayObject *data;
+
+    if (!PyArg_ParseTuple(args, "Yi", &data, &num_colors))
+    {
+      return NULL;
+    }
+    char *encoded = bottom_encode(data->ob_start, num_colors);
+
+    PyObject *result = Py_BuildValue("y#", encoded, num_colors * WIDTH * BOTTOM_HEIGHT);
+    free(encoded);
+    return result;
+  }
 #endif
 
 static PyMethodDef PuyoMethods[] = {
     {"bottom_render", py_bottom_render, METH_VARARGS, "Debug print for bottom state inspection."},
     {"bottom_handle_gravity", py_bottom_handle_gravity, METH_VARARGS, "Handle puyo gravity for a bottom state."},
     {"bottom_resolve", py_bottom_resolve, METH_VARARGS, "Fully resolve a bottom state and return the chain length."},
+    {"bottom_encode", py_bottom_encode, METH_VARARGS, "Encodes a bottom state as an array of chars."},
     {NULL, NULL, 0, NULL}
 };
 
