@@ -43,6 +43,36 @@ def test_gravity():
     ])
 
 
+def test_resolve():
+    stack = [
+        R, Y, _, _, _, _, _, _,
+        _, _, _, _, _, _, _, _,
+        _, _, _, _, _, _, _, _,
+        _, _, _, _, _, _, _, _,
+        _, _, _, _, _, _, _, _,
+        R, G, B, _, _, _, _, _,
+        R, R, G, B, _, _, _, _,
+        G, G, B, B, _, _, _, _,
+    ]
+    state = BottomState.from_list(stack)
+    state.render()
+    print()
+    chain = state.resolve()
+    state.render()
+    stack = state.to_list()
+    assert (stack == [
+        _, _, _, _, _, _, _, _,
+        _, _, _, _, _, _, _, _,
+        _, _, _, _, _, _, _, _,
+        _, _, _, _, _, _, _, _,
+        _, _, _, _, _, _, _, _,
+        _, _, _, _, _, _, _, _,
+        _, _, _, _, _, _, _, _,
+        _, Y, _, _, _, _, _, _,
+    ])
+    assert (chain == 3)
+
+
 def test_uneven_from_list():
     bad_stack = [R, G, B]
     with pytest.raises(ValueError):

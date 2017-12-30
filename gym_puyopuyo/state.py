@@ -39,7 +39,10 @@ class BottomState(object):
         core.bottom_render(self.data, self.num_colors)
 
     def handle_gravity(self):
-        core.bottom_handle_gravity(self.data, self.num_colors)
+        return core.bottom_handle_gravity(self.data, self.num_colors)
+
+    def resolve(self):
+        return core.bottom_resolve(self.data, self.num_colors)
 
     def to_list(self):
         result = []
