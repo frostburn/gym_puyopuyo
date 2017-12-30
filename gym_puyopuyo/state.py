@@ -3,12 +3,22 @@ from __future__ import unicode_literals
 import sys
 
 import numpy as np
+from gym.utils import seeding
 
 import puyocore as core
-from gym_puyopuyo.util import print_color, print_reset
+from gym_puyopuyo import util
 
 
-class BottomState(object):
+def print_puyo(color, outfile=sys.stdout):
+    util.print_color(
+        (color % 7) + 1,
+        bright=(1 + color // 7) % 2,
+        outfile=outfile,
+    )
+    outfile.write("\u25cf ")
+
+
+class BottomField(object):
     WIDTH = 8
     HEIGHT = 8
     CLEAR_THRESHOLD = 4
@@ -27,18 +37,11 @@ class BottomState(object):
                 for k in range(self.num_colors):
                     puyo = self.data[i + self.HEIGHT * k] & (1 << j)
                     if puyo:
-                        print_color(
-                            (k % 7) + 1,
-                            bright=(1 + k // 7) % 2,
-                            outfile=outfile,
-                        )
+                        print_puyo(k, outfile=outfile)
                         empty = False
                 if empty:
-                    outfile.write("\u00b7")
-                else:
-                    outfile.write("\u25cf")
-                outfile.write(" ")
-                print_reset(outfile=outfile)
+                    outfile.write("\u00b7 ")
+                util.print_reset(outfile=outfile)
             outfile.write("\n")
 
     def debug(self):
@@ -51,11 +54,14 @@ class BottomState(object):
         return core.bottom_resolve(self.data, self.num_colors)
 
     def overlay(self, stack):
-        layer = BottomState.from_list(stack)
+        layer = BottomField.from_list(stack)
         if layer.num_colors > self.num_colors:
             raise ValueError("Overlay has too many colors")
+        mask = bytearray(8)
+        for i, mine in enumerate(self.data):
+            mask[i % 8] |= mine
         for i, (mine, yours) in enumerate(zip(self.data, layer.data)):
-            if mine & yours:
+            if mask[i % 8] & yours:
                 return False
             self.data[i] = (mine | yours)
         return True
@@ -75,11 +81,6 @@ class BottomState(object):
                 result.append(puyo)
         return result
 
-    def clone(self):
-        clone = BottomState(self.num_colors)
-        clone.data = self.data[:]
-        return clone
-
     @classmethod
     def from_list(cls, stack, num_colors=None):
         if len(stack) % cls.WIDTH != 0:
@@ -97,3 +98,124 @@ class BottomState(object):
             if puyo is not None:
                 instance.data[index // cls.WIDTH + cls.HEIGHT * puyo] |= 1 << (index % cls.WIDTH)
         return instance
+
+
+class BottomState(object):
+    def __init__(self, height, width, num_colors, num_deals):
+        if height > BottomField.HEIGHT:
+            raise ValueError("Maximum height is {}".format(BottomField.HEIGHT))
+        if width > BottomField.WIDTH:
+            raise ValueError("Maximum width is {}".format(BottomField.WIDTH))
+        self.field = BottomField(num_colors)
+        self.width = width
+        self.height = height
+        self.num_colors = num_colors
+        self.num_deals = num_deals
+        self.make_actions()
+        self.seed()
+        self.make_deals()
+
+    @property
+    def max_chain(self):
+        return self.width * self.height // self.field.CLEAR_THRESHOLD
+
+    def seed(self, seed=None):
+        self.np_random, seed = seeding.np_random(seed)
+        return seed
+
+    def reset(self):
+        self.field.reset()
+        self.make_deals()
+
+    def render(self, outfile=sys.stdout):
+        self.field.render(outfile)
+        util.print_up(self.field.HEIGHT)
+        util.print_forward(2 * self.field.WIDTH + 4)
+        remaining = self.field.HEIGHT
+        for deal in self.deals:
+            for puyo in deal:
+                print_puyo(puyo)
+            util.print_back(4)
+            util.print_down(2)
+            remaining -= 2
+        util.print_down(remaining)
+        util.print_reset()
+        outfile.write("\n")
+
+    def make_actions(self):
+        self.actions = []
+        for x in range(self.width):
+            self.actions.append((x, 1))
+            self.actions.append((x, 3))
+        for x in range(self.width - 1):
+            self.actions.append((x, 0))
+            self.actions.append((x, 2))
+
+    def make_deals(self):
+        self.deals = []
+        for _ in range(self.num_deals):
+            self.make_deal()
+
+    def make_deal(self):
+        self.deals.append((
+            self.np_random.randint(0, self.num_colors),
+            self.np_random.randint(0, self.num_colors),
+        ))
+
+    def encode_deals(self):
+        np_deals = np.zeros((self.num_colors, self.num_deals, 2))
+        for i, deal in enumerate(self.deals):
+            np_deals[deal[0]][i][0] = 1
+            np_deals[deal[1]][i][1] = 1
+        return np_deals
+
+    def encode_field(self):
+        np_state = self.field.encode()
+        return np_state[:self.num_colors, (self.field.HEIGHT - self.height):, :self.width]
+
+    def encode(self):
+        return (self.encode_deals(), self.encode_field())
+
+    def play_deal(self, x, orientation):
+        self.make_deal()
+        puyo_a, puyo_b = self.deals.pop(0)
+        stack = [None] * (2 * self.field.WIDTH)
+        if orientation == 0:
+            stack[x] = puyo_a
+            stack[x+1] = puyo_b
+        elif orientation == 1:
+            stack[x] = puyo_a
+            stack[x + self.field.WIDTH] = puyo_b
+        elif orientation == 2:
+            stack[x] = puyo_b
+            stack[x+1] = puyo_a
+        elif orientation == 3:
+            stack[x] = puyo_b
+            stack[x + self.field.WIDTH] = puyo_a
+        else:
+            raise ValueError("Unknown orientation")
+        return stack
+
+    def step(self, x, orientation):
+        stack = self.play_deal(x, orientation)
+        valid = self.field.overlay(stack)
+        if not valid:
+            return -1
+        return self.field.resolve()
+
+    def clone(self):
+        clone = BottomState(self.height, self.width, self.num_colors, self.num_deals)
+        clone.field.data[:] = self.field.data
+        clone.deals[:] = self.deals
+        return clone
+
+    def get_children(self, complete=False):
+        result = []
+        for action in self.actions:
+            child = self.clone()
+            score = child.step(*action)
+            if score >= 0:
+                result.append((child, score))
+            elif complete:
+                result.append((None, score))
+        return result

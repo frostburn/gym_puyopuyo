@@ -3,6 +3,7 @@ import pytest
 from gym.envs.registration import make
 
 from gym_puyopuyo.env import register
+from gym_puyopuyo.util import print_up
 
 register()
 
@@ -47,3 +48,47 @@ def test_random_rollout(name):
         env.render(mode="human")
         if done:
             break
+
+
+def test_tree_search():
+    env = make("PuyoPuyoEndlessSmall-v0")
+
+    def deep_agent():
+        root = env.unwrapped.get_root()
+        best_score = 0
+        best_action = np.random.randint(0, env.action_space.n)
+        for action, (child, score) in enumerate(root.get_children(True)):
+            if child is None:
+                continue
+            for grand_child, child_score in child.get_children():
+                for _, grand_child_score in grand_child.get_children():
+                    total = score + child_score + grand_child_score
+                    if total > best_score:
+                        best_action = action
+                        best_score = total
+        return best_action
+
+    def agent():
+        root = env.unwrapped.get_root()
+        best_score = 0
+        best_action = np.random.randint(0, env.action_space.n)
+        for action, (child, score) in enumerate(root.get_children(True)):
+            if child is None:
+                continue
+            for _, child_score in child.get_children():
+                total = score + child_score
+                if total > best_score:
+                    best_action = action
+                    best_score = total
+        return best_action
+
+    env.reset()
+    total_reward = 0
+    for _ in range(10):
+        _, reward, done, _ = env.step(agent())
+        if done:
+            break
+        total_reward += reward
+        env.render(mode="human")
+        print_up(1)
+        print("Reward =", total_reward)

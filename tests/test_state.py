@@ -2,7 +2,7 @@ from __future__ import print_function
 
 import pytest
 
-from gym_puyopuyo.state import BottomState
+from gym_puyopuyo.state import BottomField
 
 _ = None
 R = 0
@@ -25,7 +25,7 @@ def test_gravity():
         _, _, _, _, _, _, _, _,
         _, _, _, _, _, _, _, _,
     ]
-    state = BottomState.from_list(stack)
+    state = BottomField.from_list(stack)
     state.render()
     print()
     state.handle_gravity()
@@ -54,7 +54,7 @@ def test_resolve():
         R, R, G, B, _, _, _, _,
         G, G, B, B, _, _, _, _,
     ]
-    state = BottomState.from_list(stack)
+    state = BottomField.from_list(stack)
     state.render()
     print()
     chain = state.resolve()
@@ -74,7 +74,7 @@ def test_resolve():
 
 
 def test_overlay():
-    state = BottomState(3)
+    state = BottomField(3)
     state.overlay([R, G, _, _, _, _, _, _])
     state.handle_gravity()
     state.render()
@@ -101,9 +101,9 @@ def test_overlay():
 
 
 def test_invalid_overlay():
-    state = BottomState(3)
-    state.overlay([R, G, _, _, _, _, _, _])
-    valid = state.overlay([R, G, _, _, _, _, _, _])
+    state = BottomField(4)
+    state.overlay([R, B, _, _, _, _, _, _])
+    valid = state.overlay([G, Y, _, _, _, _, _, _])
     assert (not valid)
 
 
@@ -118,7 +118,7 @@ def test_encode():
         _, _, _, _, _, _, _, _,
         _, _, _, _, _, _, _, R,
     ]
-    state = BottomState.from_list(stack)
+    state = BottomField.from_list(stack)
     state.render()
     encoded = state.encode()
     expected = [
@@ -149,10 +149,10 @@ def test_encode():
 def test_uneven_from_list():
     bad_stack = [R, G, B]
     with pytest.raises(ValueError):
-        BottomState.from_list(bad_stack)
+        BottomField.from_list(bad_stack)
 
 
 def test_too_big_from_list():
     bad_stack = [R, G, B] * 80
     with pytest.raises(ValueError):
-        BottomState.from_list(bad_stack)
+        BottomField.from_list(bad_stack)

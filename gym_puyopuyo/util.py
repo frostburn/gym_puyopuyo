@@ -15,3 +15,18 @@ def print_reset(outfile=sys.stdout):
 def print_up(n, outfile=sys.stdout):
     for _ in range(n):
         outfile.write("\033[A")
+
+
+def print_down(n, outfile=sys.stdout):
+    for _ in range(n):
+        outfile.write("\033[B")
+
+
+def print_forward(n, outfile=sys.stdout):
+    for _ in range(n):
+        outfile.write("\033[C")
+
+
+def print_back(n, outfile=sys.stdout):
+    for _ in range(n):
+        outfile.write("\033[D")
