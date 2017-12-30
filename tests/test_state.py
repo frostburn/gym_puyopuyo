@@ -73,6 +73,40 @@ def test_resolve():
     assert (chain == 3)
 
 
+def test_overlay():
+    state = BottomState(3)
+    state.overlay([R, G, _, _, _, _, _, _])
+    state.handle_gravity()
+    state.render()
+    print()
+    valid = state.overlay([
+        _, Y, _, _, _, _, _, _,
+        _, Y, _, _, _, _, _, _,
+    ])
+    state.handle_gravity()
+    state.render()
+    print()
+    assert (valid)
+    stack = state.to_list()
+    assert (stack == [
+        _, _, _, _, _, _, _, _,
+        _, _, _, _, _, _, _, _,
+        _, _, _, _, _, _, _, _,
+        _, _, _, _, _, _, _, _,
+        _, _, _, _, _, _, _, _,
+        _, Y, _, _, _, _, _, _,
+        _, Y, _, _, _, _, _, _,
+        R, G, _, _, _, _, _, _,
+    ])
+
+
+def test_invalid_overlay():
+    state = BottomState(3)
+    state.overlay([R, G, _, _, _, _, _, _])
+    valid = state.overlay([R, G, _, _, _, _, _, _])
+    assert (not valid)
+
+
 def test_encode():
     stack = [
         _, R, _, _, _, _, _, _,

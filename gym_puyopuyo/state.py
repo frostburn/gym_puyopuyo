@@ -50,6 +50,16 @@ class BottomState(object):
     def resolve(self):
         return core.bottom_resolve(self.data, self.num_colors)
 
+    def overlay(self, stack):
+        layer = BottomState.from_list(stack)
+        if layer.num_colors > self.num_colors:
+            raise ValueError("Overlay has too many colors")
+        for i, (mine, yours) in enumerate(zip(self.data, layer.data)):
+            if mine & yours:
+                return False
+            self.data[i] = (mine | yours)
+        return True
+
     def encode(self):
         data = core.bottom_encode(self.data, self.num_colors)
         return np.fromstring(data, dtype="int8").reshape(self.num_colors, self.HEIGHT, self.WIDTH)
