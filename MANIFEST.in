@@ -1,2 +1,3 @@
 include README.md
 recursive-include gym_puyopuyo
+recursive-include src
