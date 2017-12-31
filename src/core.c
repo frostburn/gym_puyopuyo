@@ -1,14 +1,7 @@
-//#include <Python.h>
+#include <stdio.h>
+#include <stdlib.h>
 
-#define WIDTH (8)
-#define BOTTOM_HEIGHT (8)
-#define CLEAR_THRESHOLD (4)
-#define H_SHIFT (1)
-#define V_SHIFT (WIDTH)
-#define BOTTOM (0xFF00000000000000ULL)
-#define RIGHT_BLOCK (0xFEFEFEFEFEFEFEFEUL)
-
-typedef unsigned long long puyos_t;
+#include "include/core.h"
 
 int popcount(puyos_t puyos) {
   return __builtin_popcountll(puyos);

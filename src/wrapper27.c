@@ -1,7 +1,6 @@
 #include <Python.h>
 
-// TODO: Proper headers
-#include "core.c"
+#include "include/core.h"
 
 static PyObject *
 py_bottom_render(PyObject *self, PyObject *args)
