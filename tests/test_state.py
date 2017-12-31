@@ -2,7 +2,7 @@ from __future__ import print_function
 
 import pytest
 
-from gym_puyopuyo.state import BottomField
+from gym_puyopuyo.state import BottomField, BottomState
 
 _ = None
 R = 0
@@ -25,12 +25,12 @@ def test_gravity():
         _, _, _, _, _, _, _, _,
         _, _, _, _, _, _, _, _,
     ]
-    state = BottomField.from_list(stack)
-    state.render()
+    field = BottomField.from_list(stack)
+    field.render()
     print()
-    state.handle_gravity()
-    state.render()
-    stack = state.to_list()
+    field.handle_gravity()
+    field.render()
+    stack = field.to_list()
     assert (stack == [
         _, _, _, _, _, _, _, _,
         _, _, _, _, _, _, _, _,
@@ -54,12 +54,12 @@ def test_resolve():
         R, R, G, B, _, _, _, _,
         G, G, B, B, _, _, _, _,
     ]
-    state = BottomField.from_list(stack)
-    state.render()
+    field = BottomField.from_list(stack)
+    field.render()
     print()
-    chain = state.resolve()
-    state.render()
-    stack = state.to_list()
+    chain = field.resolve()
+    field.render()
+    stack = field.to_list()
     assert (stack == [
         _, _, _, _, _, _, _, _,
         _, _, _, _, _, _, _, _,
@@ -74,20 +74,20 @@ def test_resolve():
 
 
 def test_overlay():
-    state = BottomField(3)
-    state.overlay([R, G, _, _, _, _, _, _])
-    state.handle_gravity()
-    state.render()
+    field = BottomField(3)
+    field.overlay([R, G, _, _, _, _, _, _])
+    field.handle_gravity()
+    field.render()
     print()
-    valid = state.overlay([
+    valid = field.overlay([
         _, Y, _, _, _, _, _, _,
         _, Y, _, _, _, _, _, _,
     ])
-    state.handle_gravity()
-    state.render()
+    field.handle_gravity()
+    field.render()
     print()
     assert (valid)
-    stack = state.to_list()
+    stack = field.to_list()
     assert (stack == [
         _, _, _, _, _, _, _, _,
         _, _, _, _, _, _, _, _,
@@ -101,9 +101,9 @@ def test_overlay():
 
 
 def test_invalid_overlay():
-    state = BottomField(4)
-    state.overlay([R, B, _, _, _, _, _, _])
-    valid = state.overlay([G, Y, _, _, _, _, _, _])
+    field = BottomField(4)
+    field.overlay([R, B, _, _, _, _, _, _])
+    valid = field.overlay([G, Y, _, _, _, _, _, _])
     assert (not valid)
 
 
@@ -118,9 +118,9 @@ def test_encode():
         _, _, _, _, _, _, _, _,
         _, _, _, _, _, _, _, R,
     ]
-    state = BottomField.from_list(stack)
-    state.render()
-    encoded = state.encode()
+    field = BottomField.from_list(stack)
+    field.render()
+    encoded = field.encode()
     expected = [
         [
             [0, 1, 0, 0, 0, 0, 0, 0],
@@ -144,6 +144,25 @@ def test_encode():
         ],
     ]
     assert (encoded == expected).all()
+
+
+def test_action_mask():
+    state = BottomState(8, 7, 2, 1)
+    stack = [
+        R, _, R, _, _, _, G, _,
+    ]
+    state.field = BottomField.from_list(stack, num_colors=state.num_colors)
+    state.render()
+    mask = state.get_action_mask()
+    print(mask)
+    assert (len(mask) == 6 + 6 + 7 + 7)
+    for i, (x, orientation) in enumerate(state.actions):
+        if x in (3, 4):
+            assert (mask[i])
+        elif orientation in (1, 3) and x in (1, 5):
+            assert (mask[i])
+        else:
+            assert (not mask[i])
 
 
 def test_uneven_from_list():

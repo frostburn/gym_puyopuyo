@@ -66,9 +66,17 @@ class BottomField(object):
             self.data[i] = (mine | yours)
         return True
 
+    def overlay_unsafe(self, stack):
+        layer = BottomField.from_list(stack)
+        for i, puyos in enumerate(layer.data):
+            self.data[i] |= puyos
+
     def encode(self):
         data = core.bottom_encode(self.data, self.num_colors)
         return np.fromstring(data, dtype="int8").reshape(self.num_colors, self.HEIGHT, self.WIDTH)
+
+    def _valid_moves(self):
+        return core.bottom_valid_moves(self.data, self.num_colors)
 
     def to_list(self):
         result = []
@@ -102,8 +110,8 @@ class BottomField(object):
 
 class BottomState(object):
     def __init__(self, height, width, num_colors, num_deals):
-        if height > BottomField.HEIGHT:
-            raise ValueError("Maximum height is {}".format(BottomField.HEIGHT))
+        if height != BottomField.HEIGHT:
+            raise NotImplementedError("Only height {} supported".format(BottomField.HEIGHT))
         if width > BottomField.WIDTH:
             raise ValueError("Maximum width is {}".format(BottomField.WIDTH))
         self.field = BottomField(num_colors)
@@ -151,6 +159,12 @@ class BottomState(object):
             self.actions.append((x, 0))
             self.actions.append((x, 2))
 
+        self._validation_actions = []
+        for x in range(self.field.WIDTH - 1):
+            self._validation_actions.append((x, 0))
+        for x in range(self.field.WIDTH):
+            self._validation_actions.append((x, 1))
+
     def make_deals(self):
         self.deals = []
         for _ in range(self.num_deals):
@@ -196,11 +210,26 @@ class BottomState(object):
             raise ValueError("Unknown orientation")
         return stack
 
+    def get_action_mask(self):
+        result = np.zeros(len(self.actions))
+        bitset = self.field._valid_moves()
+        for i, (x, orientation) in enumerate(self.actions):
+            index = self._validation_actions.index((x, orientation % 2))
+            if bitset & (1 << index):
+                result[i] = 1
+        return result
+
+    def validate_action(self, x, orientation):
+        orientation %= 2
+        bitset = self.field._valid_moves()
+        index = self._validation_actions.index((x, orientation))
+        return bool(bitset & (1 << index))
+
     def step(self, x, orientation):
-        stack = self.play_deal(x, orientation)
-        valid = self.field.overlay(stack)
-        if not valid:
+        if not self.validate_action(x, orientation):
             return -1
+        stack = self.play_deal(x, orientation)
+        self.field.overlay_unsafe(stack)
         return self.field.resolve()
 
     def clone(self):

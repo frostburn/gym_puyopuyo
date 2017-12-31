@@ -7,6 +7,7 @@
 #define RIGHT_BLOCK (0xFEFEFEFEFEFEFEFEUL)
 
 typedef unsigned long long puyos_t;
+typedef unsigned long long bitset_t;
 
 int popcount(puyos_t puyos);
 
@@ -21,3 +22,5 @@ int bottom_clear_groups(puyos_t *floor, int num_colors);
 int bottom_resolve(puyos_t *floor, int num_colors);
 
 char* bottom_encode(puyos_t *floor, int num_colors);
+
+bitset_t bottom_valid_moves(puyos_t *floor, int num_colors);

@@ -117,3 +117,33 @@ char* bottom_encode(puyos_t *floor, int num_colors) {
   }
   return data;
 }
+
+bitset_t bottom_valid_moves(puyos_t *floor, int num_colors) {
+  puyos_t all = 0;
+  for (int i = 0; i < num_colors; ++i) {
+    all |= floor[i];
+  }
+
+  bitset_t result = 0;
+  bitset_t m = 1;
+
+  puyos_t piece = 3;
+  for (int i = 0; i < WIDTH - 1; ++i) {
+    if (!(piece & all)) {
+      result |= m;
+    }
+    piece <<= 1;
+    m <<= 1;
+  }
+
+  piece = 1 | (1 << V_SHIFT);
+  for (int i = 0; i < WIDTH; ++i) {
+    if (!(piece & all)) {
+      result |= m;
+    }
+    piece <<= 1;
+    m <<= 1;
+  }
+
+  return result;
+}

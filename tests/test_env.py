@@ -44,10 +44,13 @@ def test_random_rollout(name):
         assert env.observation_space.contains(ob)
         a = agent(ob)
         assert env.action_space.contains(a)
+        action_mask = env.unwrapped.get_action_mask()
         (ob, _reward, done, _info) = env.step(a)
         env.render(mode="human")
         if done:
             break
+        else:
+            assert action_mask[a]
 
 
 def test_tree_search():

@@ -52,6 +52,9 @@ class PuyoPuyoEndlessEnv(gym.Env):
         observation, reward = self._step_state(self.state, action)
         return observation, reward, (reward < 0), {"state": self.state}
 
+    def get_action_mask(self):
+        return self.state.get_action_mask()
+
     def get_root(self):
         return self.state.clone()
 
