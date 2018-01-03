@@ -10,13 +10,13 @@ else:
 
 core = Extension(
     'puyocore',
-    sources=[wrapper, 'src/core.c'],
+    sources=[wrapper, 'src/bottom.c', 'src/bitboard.c'],
     include_dirs=['src/include'],
 )
 
 
 if __name__ == '__main__':
-    i_dont_know_how_tox_works = ['src/wrapper27.c', 'src/wrapper35.c', 'src/include/core.h']
+    i_dont_know_how_tox_works = ['src/wrapper27.c', 'src/wrapper35.c', 'src/include/bottom.h', 'src/include/bitboard.h']
     setup(
         setup_requires=['setuptools>=34.0', 'setuptools-gitver'],
         gitver=True,

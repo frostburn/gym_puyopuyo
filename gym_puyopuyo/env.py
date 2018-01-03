@@ -64,7 +64,7 @@ def register():
         id="PuyoPuyoEndlessSmall-v0",
         entry_point="gym_puyopuyo.env:PuyoPuyoEndlessEnv",
         kwargs={"width": 3, "height": 8, "num_colors": 3, "num_deals": 3},
-        max_episode_steps=200,
+        max_episode_steps=None,
         reward_threshold=25.0,
     )
 
@@ -72,6 +72,6 @@ def register():
         id="PuyoPuyoEndlessWide-v0",
         entry_point="gym_puyopuyo.env:PuyoPuyoEndlessEnv",
         kwargs={"width": 8, "height": 8, "num_colors": 4, "num_deals": 3},
-        max_episode_steps=200,
+        max_episode_steps=None,
         reward_threshold=25.0,
     )

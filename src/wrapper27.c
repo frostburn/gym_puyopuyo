@@ -1,6 +1,7 @@
 #include <Python.h>
 
-#include "include/core.h"
+#include "include/bitboard.h"
+#include "include/bottom.h"
 
 static PyObject *
 py_bottom_render(PyObject *self, PyObject *args)
