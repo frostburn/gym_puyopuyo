@@ -6,7 +6,7 @@
 
 void bottom_render(puyos_t *floor, int num_colors) {
   puyos_t p = 1;
-  for (int i = 0; i < BOTTOM_HEIGHT; ++i) {
+  for (int i = 0; i < HEIGHT; ++i) {
     for (int j = 0; j < WIDTH; ++j) {
       int empty = 1;
       for (int k = 0; k < num_colors; ++k) {
@@ -53,7 +53,7 @@ int bottom_clear_groups(puyos_t *floor, int num_colors) {
   int num_cleared = 0;
   for (int i = 0; i < num_colors; ++i) {
     puyos_t bottom = floor[i];
-    for (int j = WIDTH * BOTTOM_HEIGHT - 2; j >= 0; j -= 2) {
+    for (int j = WIDTH * HEIGHT - 2; j >= 0; j -= 2) {
       puyos_t bottom_group = 3ULL << j;
       bottom_group = flood(bottom_group, bottom);
       bottom ^= bottom_group;
@@ -86,11 +86,11 @@ int bottom_resolve(puyos_t *floor, int num_colors) {
 }
 
 char* bottom_encode(puyos_t *floor, int num_colors) {
-  char* data = malloc(num_colors * WIDTH * BOTTOM_HEIGHT * sizeof(char));
+  char* data = malloc(num_colors * WIDTH * HEIGHT * sizeof(char));
   puyos_t p = 1;
-  for (int j = 0; j < WIDTH * BOTTOM_HEIGHT; ++j) {
+  for (int j = 0; j < WIDTH * HEIGHT; ++j) {
     for (int i = 0; i < num_colors; ++i) {
-      data[j + i * WIDTH * BOTTOM_HEIGHT] = !!(p & floor[i]);
+      data[j + i * WIDTH * HEIGHT] = !!(p & floor[i]);
     }
     p <<= 1;
   }
