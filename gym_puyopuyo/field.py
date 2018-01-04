@@ -2,6 +2,8 @@ from __future__ import unicode_literals
 
 import sys
 
+import numpy as np
+
 import puyocore as core
 from gym_puyopuyo import util
 
@@ -20,8 +22,9 @@ class TallField(object):
     HEIGHT = 16
     CLEAR_THRESHOLD = 4
 
-    def __init__(self, num_colors):
+    def __init__(self, num_colors, tsu_rules=False):
         self.num_colors = num_colors
+        self.tsu_rules = tsu_rules
         self.reset()
 
     def reset(self):
@@ -49,7 +52,14 @@ class TallField(object):
         return core.tall_handle_gravity(self.data, self.num_colors)
 
     def resolve(self, tsu_rules=False):
-        return core.tall_resolve(self.data, self.num_colors, tsu_rules)
+        return core.tall_resolve(self.data, self.num_colors, self.tsu_rules)
+
+    def encode(self):
+        data = core.tall_encode(self.data, self.num_colors)
+        return np.fromstring(data, dtype="int8").reshape(self.num_colors, self.HEIGHT, self.WIDTH)
+
+    def _valid_moves(self, tsu_rules=False):
+        return core.tall_valid_moves(self.data, self.num_colors, self.tsu_rules)
 
     def to_list(self):
         result = []
@@ -65,7 +75,7 @@ class TallField(object):
         return result
 
     @classmethod
-    def from_list(cls, stack, num_colors=None):
+    def from_list(cls, stack, num_colors=None, tsu_rules=False):
         if len(stack) % cls.WIDTH != 0:
             raise ValueError("Puyos must form complete rows")
         if len(stack) > cls.WIDTH * cls.HEIGHT:
@@ -76,7 +86,7 @@ class TallField(object):
                 if puyo is not None:
                     num_colors = max(num_colors, puyo)
             num_colors += 1
-        instance = cls(num_colors)
+        instance = cls(num_colors, tsu_rules)
         for index, puyo in enumerate(stack):
             if puyo is not None:
                 column = index % cls.WIDTH

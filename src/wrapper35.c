@@ -128,6 +128,39 @@ py_tall_resolve(PyObject *self, PyObject *args)
   return Py_BuildValue("ii", score, chain);
 }
 
+static PyObject *
+py_tall_encode(PyObject *self, PyObject *args)
+{
+  int num_colors;
+  const PyByteArrayObject *data;
+
+  if (!PyArg_ParseTuple(args, "Yi", &data, &num_colors))
+  {
+    return NULL;
+  }
+  char *encoded = tall_encode(data->ob_start, num_colors);
+
+  PyObject *result = Py_BuildValue("y#", encoded, num_colors * NUM_FLOORS * WIDTH * HEIGHT);
+  free(encoded);
+  return result;
+}
+
+static PyObject *
+py_tall_valid_moves(PyObject *self, PyObject *args)
+{
+  int num_colors;
+  int tsu_rules;
+  const PyByteArrayObject *data;
+
+  if (!PyArg_ParseTuple(args, "Yip", &data, &num_colors, &tsu_rules))
+  {
+    return NULL;
+  }
+  bitset_t valid = tall_valid_moves(data->ob_start, num_colors, tsu_rules);
+
+  return Py_BuildValue("K", valid);
+}
+
 static PyMethodDef PuyoMethods[] = {
   {"bottom_render", py_bottom_render, METH_VARARGS, "Debug print for bottom state inspection."},
   {"bottom_handle_gravity", py_bottom_handle_gravity, METH_VARARGS, "Handle puyo gravity for a bottom state."},
@@ -137,6 +170,8 @@ static PyMethodDef PuyoMethods[] = {
   {"tall_render", py_tall_render, METH_VARARGS, "Debug print for tall state inspection."},
   {"tall_handle_gravity", py_tall_handle_gravity, METH_VARARGS, "Handle puyo gravity for a tall state."},
   {"tall_resolve", py_tall_resolve, METH_VARARGS, "Fully resolve a tall state and return the score and the chain length."},
+  {"tall_encode", py_tall_encode, METH_VARARGS, "Encodes a tall state as an array of chars."},
+  {"tall_valid_moves", py_tall_valid_moves, METH_VARARGS, "Returns a bitset of valid moves on a tall state."},
   {NULL, NULL, 0, NULL}
 };
 

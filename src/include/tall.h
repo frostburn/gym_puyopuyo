@@ -24,9 +24,8 @@ int tall_clear_groups(puyos_t *floors, int num_colors, int chain_number, int tsu
 
 int tall_resolve(puyos_t *floors, int num_colors, int tsu_rules, int *chain_out);
 
-// TODO:
-// char* tall_encode(puyos_t *floors, int num_colors);
+char* tall_encode(puyos_t *floors, int num_colors);
 
-// bitset_t tall_valid_moves(puyos_t *floors, int num_colors, int tsu_rules);
+bitset_t tall_valid_moves(puyos_t *floors, int num_colors, int tsu_rules);
 
 #endif /* !GYM_PUYOPUYO_TALL_H_GUARD */

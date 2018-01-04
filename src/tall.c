@@ -2,6 +2,7 @@
 #include <stdlib.h>
 
 #include "include/bitboard.h"
+#include "include/bottom.h"
 #include "include/tall.h"
 
 const int COLOR_BONUS[MAX_COLOR_BONUS + 1] = {0, 0, 3, 6, 12, 24, 48};
@@ -194,4 +195,38 @@ int tall_resolve(puyos_t *floors, int num_colors, int tsu_rules, int *chain_out)
     }
     *chain_out = chain;
     return total_score + all_clear_bonus;
+}
+
+char* tall_encode(puyos_t *floors, int num_colors) {
+  char* data = malloc(num_colors * NUM_FLOORS * WIDTH * HEIGHT * sizeof(char));
+  int index = 0;
+  for (int k = 0; k < NUM_FLOORS; ++k) {
+      puyos_t p = 1;
+      for (int j = 0; j < WIDTH * HEIGHT; ++j) {
+        for (int i = 0; i < num_colors; ++i) {
+          data[index + i * NUM_FLOORS * WIDTH * HEIGHT] = !!(p & floors[i + k * num_colors]);
+        }
+        index += 1;
+        p <<= 1;
+      }
+  }
+  return data;
+}
+
+bitset_t tall_valid_moves(puyos_t *floors, int num_colors, int tsu_rules) {
+  if (!tsu_rules) {
+    return bottom_valid_moves(floors, num_colors);
+  }
+  puyos_t all = 0;
+  for (int i = 0; i < num_colors; ++i) {
+    all |= floors[i];
+  }
+  all >>= 3 * V_SHIFT;
+
+  bitset_t result = TOP & ~all;
+  result |= result >> 1;
+  result &= 0x7FULL;
+  result |= (TOP & ~all) << (WIDTH - 1);
+
+  return result;
 }

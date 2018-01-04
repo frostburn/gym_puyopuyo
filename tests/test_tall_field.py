@@ -79,10 +79,10 @@ def test_resolve_plain(tsu_rules):
         R, R, G, _, _, _, _, _,
         R, R, G, G, _, _, _, _,
     ]
-    field = TallField.from_list(stack)
+    field = TallField.from_list(stack, tsu_rules=tsu_rules)
     field.render()
     print()
-    score, chain = field.resolve(tsu_rules=tsu_rules)
+    score, chain = field.resolve()
     field.render()
     stack = field.to_list()
     assert (stack == [
@@ -182,10 +182,10 @@ def test_resolve_ghost():
         _, _, _, _, _, G, _, _,
         _, _, _, _, _, G, _, _,
     ]
-    field = TallField.from_list(stack)
+    field = TallField.from_list(stack, tsu_rules=True)
     field.render()
     print()
-    score, chain = field.resolve(tsu_rules=True)
+    score, chain = field.resolve()
     field.render()
     stack = field.to_list()
     assert (stack == [
@@ -208,3 +208,66 @@ def test_resolve_ghost():
     ])
     assert (chain == 2)
     assert (score == 360)
+
+
+def test_encode():
+    stack = [
+        _, R, _, _, _, _, _, _,
+        G, _, G, _, _, _, _, _,
+        _, _, _, G, _, _, _, _,
+        _, _, _, _, _, _, _, _,
+        _, _, _, _, _, _, _, _,
+        _, _, _, _, _, _, _, _,
+        _, _, _, _, _, _, _, _,
+        _, _, _, _, _, _, _, R,
+        _, _, _, _, _, _, _, _,
+        _, _, G, _, _, _, _, _,
+        G, _, _, _, _, _, _, _,
+        _, _, _, R, _, _, _, _,
+        _, _, _, _, _, _, _, _,
+        _, _, _, _, _, _, _, _,
+        _, _, _, _, _, _, _, G,
+        _, _, _, _, _, _, _, R,
+    ]
+    field = TallField.from_list(stack)
+    field.render()
+    encoded = field.encode()
+    expected = [
+        [
+            [0, 1, 0, 0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0, 0, 0, 1],
+            [0, 0, 0, 0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0, 0, 0, 0],
+            [0, 0, 0, 1, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0, 0, 0, 1],
+        ],
+        [
+            [0, 0, 0, 0, 0, 0, 0, 0],
+            [1, 0, 1, 0, 0, 0, 0, 0],
+            [0, 0, 0, 1, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0, 0, 0, 0],
+            [0, 0, 1, 0, 0, 0, 0, 0],
+            [1, 0, 0, 0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0, 0, 0, 1],
+            [0, 0, 0, 0, 0, 0, 0, 0],
+        ],
+    ]
+    assert (encoded == expected).all()
