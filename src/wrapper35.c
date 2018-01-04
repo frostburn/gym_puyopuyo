@@ -14,7 +14,7 @@ py_bottom_render(PyObject *self, PyObject *args)
   {
     return NULL;
   }
-  bottom_render(data->ob_start, num_colors);
+  bottom_render((puyos_t*)data->ob_start, num_colors);
 
   Py_RETURN_NONE;
 }
@@ -29,7 +29,7 @@ py_bottom_handle_gravity(PyObject *self, PyObject *args)
   {
     return NULL;
   }
-  int iterations = bottom_handle_gravity(data->ob_start, num_colors);
+  int iterations = bottom_handle_gravity((puyos_t*)data->ob_start, num_colors);
 
   return Py_BuildValue("i", iterations);
 }
@@ -44,7 +44,7 @@ py_bottom_resolve(PyObject *self, PyObject *args)
   {
     return NULL;
   }
-  int chain = bottom_resolve(data->ob_start, num_colors);
+  int chain = bottom_resolve((puyos_t*)data->ob_start, num_colors);
 
   return Py_BuildValue("i", chain);
 }
@@ -59,7 +59,7 @@ py_bottom_encode(PyObject *self, PyObject *args)
   {
     return NULL;
   }
-  char *encoded = bottom_encode(data->ob_start, num_colors);
+  char *encoded = bottom_encode((puyos_t*)data->ob_start, num_colors);
 
   PyObject *result = Py_BuildValue("y#", encoded, num_colors * WIDTH * HEIGHT);
   free(encoded);
@@ -76,7 +76,7 @@ py_bottom_valid_moves(PyObject *self, PyObject *args)
   {
     return NULL;
   }
-  bitset_t valid = bottom_valid_moves(data->ob_start, num_colors);
+  bitset_t valid = bottom_valid_moves((puyos_t*)data->ob_start, num_colors);
 
   return Py_BuildValue("K", valid);
 }
@@ -91,7 +91,7 @@ py_tall_render(PyObject *self, PyObject *args)
   {
     return NULL;
   }
-  tall_render(data->ob_start, num_colors);
+  tall_render((puyos_t*)data->ob_start, num_colors);
 
   Py_RETURN_NONE;
 }
@@ -106,7 +106,7 @@ py_tall_handle_gravity(PyObject *self, PyObject *args)
   {
     return NULL;
   }
-  int iterations = tall_handle_gravity(data->ob_start, num_colors);
+  int iterations = tall_handle_gravity((puyos_t*)data->ob_start, num_colors);
 
   return Py_BuildValue("i", iterations);
 }
@@ -123,7 +123,7 @@ py_tall_resolve(PyObject *self, PyObject *args)
     return NULL;
   }
   int chain;
-  int score = tall_resolve(data->ob_start, num_colors, tsu_rules, &chain);
+  int score = tall_resolve((puyos_t*)data->ob_start, num_colors, tsu_rules, &chain);
 
   return Py_BuildValue("ii", score, chain);
 }
@@ -138,7 +138,7 @@ py_tall_encode(PyObject *self, PyObject *args)
   {
     return NULL;
   }
-  char *encoded = tall_encode(data->ob_start, num_colors);
+  char *encoded = tall_encode((puyos_t*)data->ob_start, num_colors);
 
   PyObject *result = Py_BuildValue("y#", encoded, num_colors * NUM_FLOORS * WIDTH * HEIGHT);
   free(encoded);
@@ -156,7 +156,7 @@ py_tall_valid_moves(PyObject *self, PyObject *args)
   {
     return NULL;
   }
-  bitset_t valid = tall_valid_moves(data->ob_start, num_colors, tsu_rules);
+  bitset_t valid = tall_valid_moves((puyos_t*)data->ob_start, num_colors, tsu_rules);
 
   return Py_BuildValue("K", valid);
 }
