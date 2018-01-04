@@ -1,3 +1,5 @@
+from __future__ import unicode_literals
+
 import sys
 
 
@@ -30,3 +32,12 @@ def print_forward(n, outfile=sys.stdout):
 def print_back(n, outfile=sys.stdout):
     for _ in range(n):
         outfile.write("\033[D")
+
+
+def print_puyo(color, outfile=sys.stdout):
+    print_color(
+        (color % 7) + 1,
+        bright=(1 + color // 7) % 2,
+        outfile=outfile,
+    )
+    outfile.write("\u25cf ")
