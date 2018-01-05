@@ -54,10 +54,10 @@ class State(object):
         self.make_deals()
 
     def render(self, outfile=sys.stdout):
-        self.field.render(outfile)
-        util.print_up(self.field.HEIGHT, outfile=outfile)
-        util.print_forward(2 * self.field.WIDTH + 4, outfile=outfile)
-        remaining = self.field.HEIGHT
+        self.field.render(outfile, width=self.width, height=self.height)
+        util.print_up(self.height, outfile=outfile)
+        util.print_forward(2 * self.width + 4, outfile=outfile)
+        remaining = self.height
         for deal in self.deals:
             for puyo in deal:
                 util.print_puyo(puyo, outfile=outfile)

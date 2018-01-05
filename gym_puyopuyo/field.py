@@ -20,9 +20,10 @@ class BottomField(object):
     def reset(self):
         self.data = bytearray(8 * self.num_colors)
 
-    def render(self, outfile=sys.stdout):
-        for i in range(self.HEIGHT):
-            for j in range(self.WIDTH):
+    def render(self, outfile=sys.stdout, width=None, height=None):
+        height = height or self.HEIGHT
+        for i in range(self.HEIGHT - height, self.HEIGHT):
+            for j in range(width or self.WIDTH):
                 empty = True
                 for k in range(self.num_colors):
                     puyo = self.data[i + self.HEIGHT * k] & (1 << j)
@@ -113,15 +114,16 @@ class TallField(object):
     def reset(self):
         self.data = bytearray(16 * self.num_colors)
 
-    def render(self, outfile=sys.stdout):
-        for i in range(self.HEIGHT):
+    def render(self, outfile=sys.stdout, width=None, height=None):
+        height = height or self.HEIGHT
+        for i in range(self.HEIGHT - height, self.HEIGHT):
             row = i % 8
             offset = i // 8
-            for j in range(self.WIDTH):
+            for j in range(width or self.WIDTH):
                 empty = True
                 for k in range(self.num_colors):
                     if self.data[row + 8 * k + 8 * self.num_colors * offset] & (1 << j):
-                        if self.tsu_rules and i <= self.offset + 1:
+                        if self.tsu_rules and i <= self.offset:
                             util.print_puyo(k + 7, outfile=outfile)
                         else:
                             util.print_puyo(k, outfile=outfile)
