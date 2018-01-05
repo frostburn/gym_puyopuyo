@@ -6,27 +6,44 @@ import numpy as np
 from gym.utils import seeding
 
 from gym_puyopuyo import util
-from gym_puyopuyo.field import BottomField
+from gym_puyopuyo.field import BottomField, TallField
+
+ALLOWED_HEIGHTS = (BottomField.HEIGHT, TallField.HEIGHT, 13)
 
 
-class BottomState(object):
-    def __init__(self, height, width, num_colors, num_deals):
-        if height != BottomField.HEIGHT:
-            raise NotImplementedError("Only height {} supported".format(BottomField.HEIGHT))
+class State(object):
+    def __init__(self, height, width, num_colors, num_deals, tsu_rules=False):
+        if height not in ALLOWED_HEIGHTS:
+            raise NotImplementedError("Only heights {} supported".format(ALLOWED_HEIGHTS))
         if width > BottomField.WIDTH:
-            raise ValueError("Maximum width is {}".format(BottomField.WIDTH))
-        self.field = BottomField(num_colors)
+            raise NotImplementedError("Maximum width is {}".format(BottomField.WIDTH))
+        if height == 13 and not tsu_rules:
+            raise NotImplementedError("Height 13 only available with tsu ruleset")
+        if tsu_rules and not height == 13:
+            raise NotImplementedError("Tsu ruleset available only for height 13")
+        if height == BottomField.HEIGHT:
+            self.field = BottomField(num_colors)
+        else:
+            self.field = TallField(num_colors, tsu_rules=tsu_rules)
         self.width = width
         self.height = height
         self.num_colors = num_colors
         self.num_deals = num_deals
+        self.tsu_rules = tsu_rules
         self.make_actions()
         self.seed()
         self.make_deals()
 
     @property
     def max_chain(self):
-        return self.width * self.height // self.field.CLEAR_THRESHOLD
+        return (self.width * self.height) // self.field.CLEAR_THRESHOLD
+
+    @property
+    def max_score(self):
+        if isinstance(self.field, BottomField):
+            return self.max_chain ** 2
+        else:
+            return self.max_chain * 999  # FIXME: This overshoots a lot
 
     def seed(self, seed=None):
         self.np_random, seed = seeding.np_random(seed)
@@ -38,17 +55,17 @@ class BottomState(object):
 
     def render(self, outfile=sys.stdout):
         self.field.render(outfile)
-        util.print_up(self.field.HEIGHT)
-        util.print_forward(2 * self.field.WIDTH + 4)
+        util.print_up(self.field.HEIGHT, outfile=outfile)
+        util.print_forward(2 * self.field.WIDTH + 4, outfile=outfile)
         remaining = self.field.HEIGHT
         for deal in self.deals:
             for puyo in deal:
-                util.print_puyo(puyo)
-            util.print_back(4)
-            util.print_down(2)
+                util.print_puyo(puyo, outfile=outfile)
+            util.print_back(4, outfile=outfile)
+            util.print_down(2, outfile=outfile)
             remaining -= 2
-        util.print_down(remaining)
-        util.print_reset()
+        util.print_down(remaining, outfile=outfile)
+        util.print_reset(outfile=outfile)
         outfile.write("\n")
 
     def make_actions(self):
@@ -131,10 +148,10 @@ class BottomState(object):
             return -1
         stack = self.play_deal(x, orientation)
         self.field.overlay_unsafe(stack)
-        return self.field.resolve()
+        return self.field.resolve()[0]
 
     def clone(self):
-        clone = BottomState(self.height, self.width, self.num_colors, self.num_deals)
+        clone = State(self.height, self.width, self.num_colors, self.num_deals, tsu_rules=self.tsu_rules)
         clone.field.data[:] = self.field.data
         clone.deals[:] = self.deals
         return clone

@@ -2,13 +2,13 @@ import numpy as np
 import pytest
 from gym.envs.registration import make
 
-from gym_puyopuyo.env import register
+from gym_puyopuyo.env import ENV_NAMES, register
 from gym_puyopuyo.util import print_up
 
 register()
 
 
-@pytest.mark.parametrize("name", ["PuyoPuyoEndlessSmall-v0", "PuyoPuyoEndlessWide-v0"])
+@pytest.mark.parametrize("name", ENV_NAMES.values())
 def test_env(name):
     env = make(name)
     ob_space = env.observation_space
@@ -35,7 +35,7 @@ def test_env(name):
     env.close()
 
 
-@pytest.mark.parametrize("name", ["PuyoPuyoEndlessSmall-v0", "PuyoPuyoEndlessWide-v0"])
+@pytest.mark.parametrize("name", ENV_NAMES.values())
 def test_random_rollout(name):
     env = make(name)
     agent = lambda ob: env.action_space.sample()  # noqa: E731
@@ -53,8 +53,9 @@ def test_random_rollout(name):
             assert action_mask[a]
 
 
-def test_tree_search():
-    env = make("PuyoPuyoEndlessSmall-v0")
+@pytest.mark.parametrize("name", [ENV_NAMES["small"], ENV_NAMES["tsu"]])
+def test_tree_search(name):
+    env = make(name)
 
     def deep_agent():
         root = env.unwrapped.get_root()

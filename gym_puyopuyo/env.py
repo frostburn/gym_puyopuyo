@@ -5,7 +5,14 @@ import gym.envs.registration
 from gym import spaces
 from six import StringIO
 
-from gym_puyopuyo.state import BottomState
+from gym_puyopuyo.state import State
+
+ENV_NAMES = {
+    "small": "PuyoPuyoEndlessSmall-v0",
+    "wide": "PuyoPuyoEndlessWide-v0",
+    "tsu": "PuyoPuyoEndlessTsu-v0",
+    "large": "PuyoPuyoEndlessLarge-v0",
+}
 
 
 class PuyoPuyoEndlessEnv(gym.Env):
@@ -15,9 +22,9 @@ class PuyoPuyoEndlessEnv(gym.Env):
 
     metadata = {"render.modes": ["human", "ansi"]}
 
-    def __init__(self, height, width, num_colors, num_deals):
-        self.state = BottomState(height, width, num_colors, num_deals)
-        self.reward_range = (-1, self.state.max_chain ** 2)
+    def __init__(self, height, width, num_colors, num_deals, tsu_rules=False):
+        self.state = State(height, width, num_colors, num_deals, tsu_rules=tsu_rules)
+        self.reward_range = (-1, self.state.max_score)
 
         self.action_space = spaces.Discrete(len(self.state.actions))
         self.observation_space = spaces.Tuple((
@@ -42,8 +49,7 @@ class PuyoPuyoEndlessEnv(gym.Env):
 
     def _step_state(self, state, action, include_observations=True):
         action = self.state.actions[action]
-        chain = self.state.step(*action)
-        reward = chain * chain if chain >= 0 else -1
+        reward = self.state.step(*action)
         if include_observations:
             return self.state.encode(), reward
         return reward
@@ -61,7 +67,7 @@ class PuyoPuyoEndlessEnv(gym.Env):
 
 def register():
     gym.envs.registration.register(
-        id="PuyoPuyoEndlessSmall-v0",
+        id=ENV_NAMES["small"],
         entry_point="gym_puyopuyo.env:PuyoPuyoEndlessEnv",
         kwargs={"width": 3, "height": 8, "num_colors": 3, "num_deals": 3},
         max_episode_steps=None,
@@ -69,9 +75,25 @@ def register():
     )
 
     gym.envs.registration.register(
-        id="PuyoPuyoEndlessWide-v0",
+        id=ENV_NAMES["wide"],
         entry_point="gym_puyopuyo.env:PuyoPuyoEndlessEnv",
         kwargs={"width": 8, "height": 8, "num_colors": 4, "num_deals": 3},
+        max_episode_steps=None,
+        reward_threshold=25.0,
+    )
+
+    gym.envs.registration.register(
+        id=ENV_NAMES["tsu"],
+        entry_point="gym_puyopuyo.env:PuyoPuyoEndlessEnv",
+        kwargs={"width": 6, "height": 13, "num_colors": 4, "num_deals": 3, "tsu_rules": True},
+        max_episode_steps=None,
+        reward_threshold=25.0,
+    )
+
+    gym.envs.registration.register(
+        id=ENV_NAMES["large"],
+        entry_point="gym_puyopuyo.env:PuyoPuyoEndlessEnv",
+        kwargs={"width": 8, "height": 16, "num_colors": 5, "num_deals": 3},
         max_episode_steps=None,
         reward_threshold=25.0,
     )

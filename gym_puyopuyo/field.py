@@ -41,7 +41,8 @@ class BottomField(object):
         return core.bottom_handle_gravity(self.data, self.num_colors)
 
     def resolve(self):
-        return core.bottom_resolve(self.data, self.num_colors)
+        chain = core.bottom_resolve(self.data, self.num_colors)
+        return (chain * chain, chain)
 
     def overlay(self, stack):
         layer = BottomField.from_list(stack)
@@ -106,6 +107,7 @@ class TallField(object):
     def __init__(self, num_colors, tsu_rules=False):
         self.num_colors = num_colors
         self.tsu_rules = tsu_rules
+        self.offset = 3 if tsu_rules else 0
         self.reset()
 
     def reset(self):
@@ -119,7 +121,10 @@ class TallField(object):
                 empty = True
                 for k in range(self.num_colors):
                     if self.data[row + 8 * k + 8 * self.num_colors * offset] & (1 << j):
-                        util.print_puyo(k, outfile=outfile)
+                        if self.tsu_rules and i <= self.offset + 1:
+                            util.print_puyo(k + 7, outfile=outfile)
+                        else:
+                            util.print_puyo(k, outfile=outfile)
                         empty = False
                 if empty:
                     outfile.write("\u00b7 ")
@@ -132,14 +137,19 @@ class TallField(object):
     def handle_gravity(self):
         return core.tall_handle_gravity(self.data, self.num_colors)
 
-    def resolve(self, tsu_rules=False):
+    def resolve(self):
         return core.tall_resolve(self.data, self.num_colors, self.tsu_rules)
 
     def encode(self):
         data = core.tall_encode(self.data, self.num_colors)
         return np.fromstring(data, dtype="int8").reshape(self.num_colors, self.HEIGHT, self.WIDTH)
 
-    def _valid_moves(self, tsu_rules=False):
+    def overlay_unsafe(self, stack):
+        layer = BottomField.from_list(stack)
+        for i, puyos in enumerate(layer.data):
+            self.data[i] |= puyos
+
+    def _valid_moves(self):
         return core.tall_valid_moves(self.data, self.num_colors, self.tsu_rules)
 
     def to_list(self):

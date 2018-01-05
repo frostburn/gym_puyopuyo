@@ -57,7 +57,7 @@ def test_resolve():
     field = BottomField.from_list(stack)
     field.render()
     print()
-    chain = field.resolve()
+    chain = field.resolve()[1]
     field.render()
     stack = field.to_list()
     assert (stack == [
