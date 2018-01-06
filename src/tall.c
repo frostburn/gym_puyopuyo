@@ -1,9 +1,9 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#include "include/bitboard.h"
-#include "include/bottom.h"
-#include "include/tall.h"
+#include "bitboard.h"
+#include "bottom.h"
+#include "tall.h"
 
 const int COLOR_BONUS[MAX_COLOR_BONUS + 1] = {0, 0, 3, 6, 12, 24, 48};
 const int GROUP_BONUS[MAX_GROUP_BONUS + 1] = {0, 2, 3, 4, 5, 6, 7, 10};

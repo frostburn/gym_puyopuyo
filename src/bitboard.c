@@ -1,4 +1,4 @@
-#include "include/bitboard.h"
+#include "bitboard.h"
 
 int popcount(puyos_t puyos) {
   return __builtin_popcountll(puyos);

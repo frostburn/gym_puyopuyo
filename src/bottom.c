@@ -1,8 +1,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#include "include/bitboard.h"
-#include "include/bottom.h"
+#include "bitboard.h"
+#include "bottom.h"
 
 void bottom_render(puyos_t *floor, int num_colors) {
   puyos_t p = 1;

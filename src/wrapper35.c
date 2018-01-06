@@ -1,8 +1,8 @@
 #include <Python.h>
 
-#include "include/bitboard.h"
-#include "include/bottom.h"
-#include "include/tall.h"
+#include "bitboard.h"
+#include "bottom.h"
+#include "tall.h"
 
 static PyObject *
 py_bottom_render(PyObject *self, PyObject *args)
