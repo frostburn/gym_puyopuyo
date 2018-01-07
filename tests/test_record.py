@@ -1,10 +1,8 @@
 from __future__ import unicode_literals
 
 import json
-try:  # noqa: I003
-    from StringIO import StringIO
-except ImportError:
-    from io import StringIO
+
+from six import StringIO
 
 from gym_puyopuyo.record import read_record, write_record  # noqa: I001
 from gym_puyopuyo.state import State  # noqa: I001

@@ -4,6 +4,8 @@ import json
 from collections import deque
 from random import random
 
+import six
+
 
 def write_record(file, initial_state, actions):
     """
@@ -51,7 +53,10 @@ def infer_deal_and_action(state, stack):
 
 
 def read_record(file, base_state):
-    stacks = json.load(file)
+    if isinstance(file, six.string_types):
+        stacks = json.loads(file)
+    else:
+        stacks = json.load(file)
     if not stacks:
         return
     if len(stacks[0]) % base_state.width != 0:

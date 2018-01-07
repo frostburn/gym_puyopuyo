@@ -5,6 +5,7 @@ import gym.envs.registration
 from gym import spaces
 from six import StringIO
 
+from gym_puyopuyo.record import read_record
 from gym_puyopuyo.state import State
 
 ENV_NAMES = {
@@ -63,6 +64,24 @@ class PuyoPuyoEndlessEnv(gym.Env):
 
     def get_root(self):
         return self.state.clone()
+
+    def read_record(self, file):
+        """
+        Reads a record and yields observations like step does.
+
+        The actions played are available under the info element.
+        """
+        initial_state = self.state.clone()
+        initial_state.reset()
+        for state, action, reward in read_record(file, initial_state):
+            info = {
+                "state": state,
+                "action": state.actions.index(action),
+            }
+            done = (reward < 0)
+            yield state.encode(), reward, done, info
+            if done:
+                return
 
 
 def register():

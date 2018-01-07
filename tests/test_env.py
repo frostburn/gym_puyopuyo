@@ -1,6 +1,7 @@
 import numpy as np
 import pytest
 from gym.envs.registration import make
+from six import StringIO
 
 from gym_puyopuyo.env import ENV_NAMES, register
 from gym_puyopuyo.util import print_up
@@ -96,3 +97,49 @@ def test_tree_search(name):
         env.render(mode="human")
         print_up(1)
         print("Reward =", total_reward)
+
+
+def test_read_record():
+    record = """[[
+    1, 1, 0, 0, 0, 0,
+    0, 0, 0, 0, 0, 0
+    ],[
+    0, 0, 1, 0, 0, 0,
+    0, 0, 2, 0, 0, 0
+    ],[
+    0, 3, 2, 0, 0, 0,
+    0, 0, 0, 0, 0, 0
+    ],[
+    3, 0, 0, 0, 0, 0,
+    3, 0, 0, 0, 0, 0
+    ],[
+    0, 1, 2, 0, 0, 0,
+    0, 0, 0, 0, 0, 0
+    ],[
+    0, 0, 0, 2, 0, 0,
+    0, 0, 0, 4, 0, 0
+    ],[
+    0, 0, 0, 4, 0, 0,
+    0, 0, 0, 4, 0, 0
+    ],[
+    0, 0, 0, 0, 1, 0,
+    0, 0, 0, 0, 1, 0
+    ],[
+    0, 0, 0, 0, 1, 0,
+    0, 0, 0, 0, 4, 0
+    ],[
+    0, 0, 0, 0, 0, 2,
+    0, 0, 0, 0, 0, 2
+    ],[
+    0, 0, 0, 0, 0, 2,
+    0, 0, 0, 0, 0, 1
+    ],[
+    3, 4, 0, 0, 0, 0,
+    0, 0, 0, 0, 0, 0
+    ]]"""
+    stream = StringIO()
+    stream.write(record)
+    stream.seek(0)
+    env = make(ENV_NAMES["tsu"])
+    for observation, reward, done, info in env.read_record(stream):
+        info["state"].render()
