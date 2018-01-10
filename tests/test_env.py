@@ -3,10 +3,8 @@ import pytest
 from gym.envs.registration import make
 from six import StringIO
 
-from gym_puyopuyo.env import ENV_NAMES, register
+from gym_puyopuyo.env import ENV_NAMES
 from gym_puyopuyo.util import print_up
-
-register()
 
 
 @pytest.mark.parametrize("name", ENV_NAMES.values())
