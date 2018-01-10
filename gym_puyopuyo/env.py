@@ -12,10 +12,10 @@ from gym_puyopuyo.state import State
 from gym_puyopuyo.util import permute
 
 ENV_NAMES = {
-    "small": "PuyoPuyoEndlessSmall-v0",
-    "wide": "PuyoPuyoEndlessWide-v0",
-    "tsu": "PuyoPuyoEndlessTsu-v0",
-    "large": "PuyoPuyoEndlessLarge-v0",
+    "small": "PuyoPuyoEndlessSmall-v1",
+    "wide": "PuyoPuyoEndlessWide-v1",
+    "tsu": "PuyoPuyoEndlessTsu-v1",
+    "large": "PuyoPuyoEndlessLarge-v1",
 }
 
 
