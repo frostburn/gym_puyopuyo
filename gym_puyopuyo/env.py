@@ -1,12 +1,15 @@
+import random
 import sys
 
 import gym
 import gym.envs.registration
 from gym import spaces
+import numpy as np
 from six import StringIO
 
 from gym_puyopuyo.record import read_record
 from gym_puyopuyo.state import State
+from gym_puyopuyo.util import permute
 
 ENV_NAMES = {
     "small": "PuyoPuyoEndlessSmall-v0",
@@ -82,6 +85,29 @@ class PuyoPuyoEndlessEnv(gym.Env):
             yield state.encode(), reward, done, info
             if done:
                 return
+
+    @classmethod
+    def permute_observation(cls, observation):
+        """
+        Permute the observation in-place without affecting which action is optimal
+        """
+        deals, colors = observation
+        deals = np.copy(deals)
+        colors = np.copy(colors)
+
+        # Flip deals other than the first one as it affects next action
+        for i in range(1, len(deals[0])):
+            if random.random() < 0.5:
+                for color in range(len(deals)):
+                    deals[color][i][0], deals[color][i][1] = deals[color][i][1], deals[color][i][0]
+
+        perm = list(range(len(colors)))
+        random.shuffle(perm)
+        permute(deals, perm)
+        permute(colors, perm)
+        return (deals, colors)
+
+    # TODO: Action affecting permutations (mirroring)
 
 
 def register():

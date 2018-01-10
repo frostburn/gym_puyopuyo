@@ -41,3 +41,12 @@ def print_puyo(color, outfile=sys.stdout):
         outfile=outfile,
     )
     outfile.write("\u25cf ")
+
+
+def permute(seq, permutation):
+    """
+    Permute a sequence in-place according to a list of indices
+    """
+    temp = seq[:]
+    for where, to in enumerate(permutation):
+        seq[to] = temp[where]

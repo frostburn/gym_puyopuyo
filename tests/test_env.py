@@ -21,6 +21,9 @@ def test_env(name):
     observation, reward, done, _info = env.step(a)
     msg = 'Step observation: {!r} not in space'.format(observation)
     assert ob_space.contains(observation), msg
+    permuted = env.unwrapped.permute_observation(observation)
+    print(permuted[0] == observation[0])
+    assert ob_space.contains(permuted), msg
     assert np.isscalar(reward), "{} is not a scalar for {}".format(reward, env)
     assert isinstance(done, bool), "Expected {} to be a boolean".format(done)
 
