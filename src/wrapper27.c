@@ -162,6 +162,22 @@ py_tall_valid_moves(PyObject *self, PyObject *args)
   return Py_BuildValue("K", valid);
 }
 
+static PyObject *
+py_make_move(PyObject *self, PyObject *args)
+{
+  int action, color_a, color_b;
+  const PyByteArrayObject *data;
+
+  if (!PyArg_ParseTuple(args, "Oiii", &data, &action, &color_a, &color_b))
+  {
+    return NULL;
+  }
+  make_move((puyos_t*)data->ob_bytes, action, color_a, color_b);
+
+  Py_RETURN_NONE;
+}
+
+
 static PyMethodDef PuyoMethods[] = {
   {"bottom_render", py_bottom_render, METH_VARARGS, "Debug print for bottom state inspection."},
   {"bottom_handle_gravity", py_bottom_handle_gravity, METH_VARARGS, "Handle puyo gravity for a bottom state."},
@@ -173,6 +189,7 @@ static PyMethodDef PuyoMethods[] = {
   {"tall_resolve", py_tall_resolve, METH_VARARGS, "Fully resolve a tall state and return the score and the chain length."},
   {"tall_encode", py_tall_encode, METH_VARARGS, "Encodes a tall state as an array of chars."},
   {"tall_valid_moves", py_tall_valid_moves, METH_VARARGS, "Returns a bitset of valid moves on a tall state."},
+  {"make_move", py_make_move, METH_VARARGS, "Overlays two puyos of the given colors on top of the field."},
   {NULL, NULL, 0, NULL}
 };
 

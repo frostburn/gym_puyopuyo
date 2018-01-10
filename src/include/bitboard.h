@@ -11,6 +11,7 @@
 #define BOTTOM (0xFF00000000000000ULL)
 #define RIGHT_BLOCK (0xFEFEFEFEFEFEFEFEULL)
 #define FULL (0xFFFFFFFFFFFFFFFFULL)
+#define NUM_ACTIONS (4 * WIDTH - 2)
 
 typedef unsigned long long puyos_t;
 typedef unsigned long long bitset_t;

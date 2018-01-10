@@ -108,3 +108,34 @@ bitset_t bottom_valid_moves(puyos_t *floor, int num_colors) {
   result |= (TOP & ~all) << (WIDTH - 1);
   return result;
 }
+
+// This is valid for both bottom and tall fields due to the data layout
+void make_move(puyos_t *floor, int action, int color_a, int color_b) {
+  int x = action;
+  int orientation = 0;
+  if (x >= WIDTH - 1) {
+    x -= WIDTH - 1;
+    orientation = 1;
+  }
+  if (x >= WIDTH) {
+    x -= WIDTH;
+    orientation = 2;
+  }
+  if (x >= WIDTH - 1) {
+    x -= WIDTH - 1;
+    orientation = 3;
+  }
+  if (orientation == 0) {
+    floor[color_a] |= 1ULL << x;
+    floor[color_b] |= 1ULL << (x + 1);
+  } else if (orientation == 1) {
+    floor[color_a] |= 1ULL << x;
+    floor[color_b] |= 1ULL << (x + V_SHIFT);
+  } else if (orientation == 2) {
+    floor[color_b] |= 1ULL << x;
+    floor[color_a] |= 1ULL << (x + 1);
+  } else {
+    floor[color_b] |= 1ULL << x;
+    floor[color_a] |= 1ULL << (x + V_SHIFT);
+  }
+}

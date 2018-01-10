@@ -82,6 +82,10 @@ class State(object):
             self._validation_actions.append((x, 0))
         for x in range(self.field.WIDTH):
             self._validation_actions.append((x, 1))
+        for x in range(self.field.WIDTH - 1):
+            self._validation_actions.append((x, 2))
+        for x in range(self.field.WIDTH):
+            self._validation_actions.append((x, 3))
 
     def make_deals(self):
         self.deals = []
@@ -108,9 +112,8 @@ class State(object):
     def encode(self):
         return (self.encode_deals(), self.encode_field())
 
-    def play_deal(self, x, orientation):
-        self.make_deal()
-        puyo_a, puyo_b = self.deals.pop(0)
+    def get_deal_stack(self, x, orientation):
+        puyo_a, puyo_b = self.deals[0]
         stack = [None] * (2 * self.field.WIDTH)
         if orientation == 0:
             stack[x] = puyo_a
@@ -127,6 +130,12 @@ class State(object):
         else:
             raise ValueError("Unknown orientation")
         return stack
+
+    def play_deal(self, x, orientation):
+        self.make_deal()
+        puyo_a, puyo_b = self.deals.pop(0)
+        index = self._validation_actions.index((x, orientation))
+        self.field._make_move(index, puyo_a, puyo_b)
 
     def get_action_mask(self):
         result = np.zeros(len(self.actions))
@@ -146,8 +155,7 @@ class State(object):
     def step(self, x, orientation):
         if not self.validate_action(x, orientation):
             return -1
-        stack = self.play_deal(x, orientation)
-        self.field.overlay_unsafe(stack)
+        self.play_deal(x, orientation)
         return self.field.resolve()[0]
 
     def clone(self):

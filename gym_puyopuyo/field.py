@@ -70,6 +70,9 @@ class BottomField(object):
     def _valid_moves(self):
         return core.bottom_valid_moves(self.data, self.num_colors)
 
+    def _make_move(self, action, puyo_a, puyo_b):
+        core.make_move(self.data, action, puyo_a, puyo_b)
+
     def to_list(self):
         result = []
         for i in range(self.HEIGHT):
@@ -153,6 +156,9 @@ class TallField(object):
 
     def _valid_moves(self):
         return core.tall_valid_moves(self.data, self.num_colors, self.tsu_rules)
+
+    def _make_move(self, action, puyo_a, puyo_b):
+        core.make_move(self.data, action, puyo_a, puyo_b)
 
     def to_list(self):
         result = []

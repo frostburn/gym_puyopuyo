@@ -17,7 +17,7 @@ def write_record(file, initial_state, actions):
         if isinstance(action, int):
             action = state.actions[action]
         clone = state.clone()
-        stack = clone.play_deal(*action)
+        stack = clone.get_deal_stack(*action)
         stack = ["0" if p is None else str(p + 1) for p in stack]
         file.write(", ".join(stack[:state.field.WIDTH][:state.width] + ["\n"]))
         file.write(", ".join(stack[state.field.WIDTH:][:state.width]) + "\n")

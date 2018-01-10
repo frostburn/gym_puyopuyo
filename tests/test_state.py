@@ -1,5 +1,7 @@
 from __future__ import print_function
 
+import pytest
+
 from gym_puyopuyo.field import BottomField, TallField
 from gym_puyopuyo.state import State
 
@@ -50,3 +52,36 @@ def test_action_mask_tsu():
             assert (mask[i])
         else:
             assert (not mask[i])
+
+
+@pytest.mark.parametrize("height", [8, 16])
+def test_make_move(height):
+    state = State(height, 5, 2, 1)
+    state.deals[0] = (0, 1)
+    state.render()
+    state.play_deal(2, 3)
+    state.render()
+    _, stack = state.encode()
+    print(stack)
+    assert (stack[0][1][2])
+    assert (stack[1][0][2])
+
+
+def test_resolve():
+    state = State(8, 7, 2, 1)
+    state.deals[0] = (0, 0)
+    stack = [
+        _, _, _, _, _, _, _, _,
+        _, _, _, _, _, _, _, _,
+        _, _, _, _, _, _, _, _,
+        _, _, _, _, _, _, _, _,
+        _, _, _, _, _, _, _, _,
+        _, _, _, _, _, _, _, _,
+        _, G, G, G, _, _, _, _,
+        _, R, R, R, G, G, G, _,
+    ]
+    state.field = BottomField.from_list(stack, num_colors=state.num_colors)
+    state.render()
+    reward = state.step(0, 1)
+    state.render()
+    assert (reward == 4)

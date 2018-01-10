@@ -13,4 +13,6 @@ char* bottom_encode(puyos_t *floor, int num_colors);
 
 bitset_t bottom_valid_moves(puyos_t *floor, int num_colors);
 
+void make_move(puyos_t *floor, int action, int color_a, int color_b);
+
 #endif /* !GYM_PUYOPUYO_BOTTOM_H_GUARD */

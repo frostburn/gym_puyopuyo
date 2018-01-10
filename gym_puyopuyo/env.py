@@ -4,7 +4,7 @@ import sys
 import gym
 import gym.envs.registration
 from gym import spaces
-import numpy as np
+import numpy as np  # noqa: I001
 from six import StringIO
 
 from gym_puyopuyo.record import read_record
