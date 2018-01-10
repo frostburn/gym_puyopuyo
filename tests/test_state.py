@@ -85,3 +85,43 @@ def test_resolve():
     reward = state.step(0, 1)
     state.render()
     assert (reward == 4)
+
+
+def test_no_moves():
+    state = State(8, 2, 4, 1)
+    stack = [
+        _, R, _, _, _, _, _, _,
+        B, R, _, _, _, _, _, _,
+        Y, B, _, _, _, _, _, _,
+        G, B, _, _, _, _, _, _,
+        G, R, _, _, _, _, _, _,
+        Y, R, _, _, _, _, _, _,
+        B, G, _, _, _, _, _, _,
+        B, R, _, _, _, _, _, _,
+    ]
+    state.field = BottomField.from_list(stack, num_colors=state.num_colors)
+    state.render()
+    assert (not state.get_children())
+
+
+def test_has_moves_tsu():
+    state = State(13, 2, 4, 1, tsu_rules=True)
+    stack = [_, _, _, _, _, _, _, _] * state.field.offset
+    stack += [
+        _, R, _, _, _, _, _, _,
+        B, R, _, _, _, _, _, _,
+        Y, B, _, _, _, _, _, _,
+        G, B, _, _, _, _, _, _,
+        G, R, _, _, _, _, _, _,
+        Y, R, _, _, _, _, _, _,
+        B, G, _, _, _, _, _, _,
+        B, R, _, _, _, _, _, _,
+        B, R, _, _, _, _, _, _,
+        Y, B, _, _, _, _, _, _,
+        G, B, _, _, _, _, _, _,
+        G, R, _, _, _, _, _, _,
+        Y, R, _, _, _, _, _, _,
+    ]
+    state.field = TallField.from_list(stack, num_colors=state.num_colors)
+    state.render()
+    assert (state.get_children())

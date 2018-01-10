@@ -105,7 +105,7 @@ bitset_t bottom_valid_moves(puyos_t *floor, int num_colors) {
 
   bitset_t result = TOP & ~all;
   result &= result >> 1;
-  result |= (TOP & ~all) << (WIDTH - 1);
+  result |= (TOP & ~(all | (all >> V_SHIFT))) << (WIDTH - 1);
   return result;
 }
 
