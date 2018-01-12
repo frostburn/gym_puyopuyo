@@ -210,6 +210,54 @@ def test_resolve_ghost():
     assert (score == 360)
 
 
+def test_resolve_garbage():
+    O = G + 1  # noqa
+    stack = [
+        _, _, _, _, _, _, _, _,
+        _, _, _, _, _, _, _, _,
+        _, _, _, _, _, _, _, _,
+        _, _, _, _, _, O, _, _,
+        _, _, _, _, O, R, _, _,
+        _, _, _, _, O, R, _, _,
+        _, _, _, _, O, R, _, _,
+        _, _, _, _, O, R, _, _,
+        _, _, _, _, O, R, _, _,
+        _, _, _, _, O, R, _, _,
+        _, _, _, _, O, R, _, _,
+        _, _, _, _, O, R, _, _,
+        _, _, _, O, O, R, _, _,
+        _, _, _, O, O, R, _, _,
+        _, _, _, O, O, G, O, _,
+        _, _, _, O, O, G, O, O,
+    ]
+    field = TallField.from_list(stack, tsu_rules=True, has_garbage=True)
+    field.render()
+    print()
+    score, chain = field.resolve()
+    field.render()
+    stack = field.to_list()
+    assert (stack == [
+        _, _, _, _, _, _, _, _,
+        _, _, _, _, _, _, _, _,
+        _, _, _, _, _, _, _, _,
+        _, _, _, _, _, _, _, _,
+        _, _, _, _, _, _, _, _,
+        _, _, _, _, _, _, _, _,
+        _, _, _, _, _, _, _, _,
+        _, _, _, _, _, _, _, _,
+        _, _, _, _, _, _, _, _,
+        _, _, _, _, _, _, _, _,
+        _, _, _, _, _, _, _, _,
+        _, _, _, _, _, _, _, _,
+        _, _, _, O, _, _, _, _,
+        _, _, _, O, _, O, _, _,
+        _, _, _, O, O, G, O, _,
+        _, _, _, O, O, G, O, O,
+    ])
+    assert (chain == 1)
+    assert (score == 700)
+
+
 def test_encode():
     stack = [
         _, R, _, _, _, _, _, _,

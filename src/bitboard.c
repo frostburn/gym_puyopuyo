@@ -4,6 +4,16 @@ int popcount(puyos_t puyos) {
   return __builtin_popcountll(puyos);
 }
 
+puyos_t cross(puyos_t puyos) {
+  return (
+    puyos |
+    ((puyos & RIGHT_BLOCK) >> H_SHIFT) |
+    ((puyos << H_SHIFT) & RIGHT_BLOCK) |
+    (puyos << V_SHIFT) |
+    (puyos >> V_SHIFT)
+  );
+}
+
 puyos_t flood(register puyos_t source, register puyos_t target) {
   source &= target;
   if (!source){
@@ -54,4 +64,23 @@ void flood_2(puyos_t *source, puyos_t *target) {
             ((source[0] & BOTTOM) >> TOP_TO_BOTTOM)
         ) & target[1];
     } while (temp[0] != source[0] || temp[1] != source[1]);
+}
+
+
+void cross_2(puyos_t *puyos) {
+  puyos[0] |= (
+    ((puyos[0] & RIGHT_BLOCK) >> H_SHIFT) |
+    ((puyos[0] << H_SHIFT) & RIGHT_BLOCK) |
+    (puyos[0] << V_SHIFT) |
+    (puyos[0] >> V_SHIFT) |
+    ((puyos[1] & TOP) << TOP_TO_BOTTOM)
+  );
+
+  puyos[1] |= (
+    ((puyos[1] & RIGHT_BLOCK) >> H_SHIFT) |
+    ((puyos[1] << H_SHIFT) & RIGHT_BLOCK) |
+    (puyos[1] << V_SHIFT) |
+    (puyos[1] >> V_SHIFT) |
+    ((puyos[0] & BOTTOM) >> TOP_TO_BOTTOM)
+  );
 }

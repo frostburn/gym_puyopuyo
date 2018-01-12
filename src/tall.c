@@ -73,9 +73,7 @@ int tall_handle_gravity(puyos_t *floors, int num_colors) {
     return iterations;
 }
 
-int tall_clear_groups(puyos_t *floors, int num_colors, int chain_number, int tsu_rules, puyos_t *cleared) {
-    puyos_t *top = floors;
-    puyos_t *bottom = floors + num_colors;
+int tall_clear_groups(puyos_t *top, puyos_t *bottom, int num_colors, int chain_number, int tsu_rules, puyos_t *cleared) {
     int num_cleared = 0;
     int group_bonus = 0;
     bitset_t color_flags = 0;
@@ -164,30 +162,38 @@ void tall_kill_puyos(puyos_t *floors, int num_colors) {
     }
 }
 
-int tall_resolve(puyos_t *floors, int num_colors, int tsu_rules, int *chain_out) {
+int tall_resolve(puyos_t *floors, int num_layers, int tsu_rules, int has_garbage, int *chain_out) {
     int chain = -1;
     int total_score = 0;
     while(1) {
         ++chain;
-        int iterations = tall_handle_gravity(floors, num_colors);
+        int iterations = tall_handle_gravity(floors, num_layers);
         if (iterations == 1 && chain > 0) {
             break;
         }
         if (tsu_rules) {
-            tall_kill_puyos(floors, num_colors);
+            tall_kill_puyos(floors, num_layers);
         }
         puyos_t cleared[2];
-        int score = tall_clear_groups(floors, num_colors, chain, tsu_rules, cleared);
+        int score = tall_clear_groups(floors, floors + num_layers, num_layers - has_garbage, chain, tsu_rules, cleared);
         if (!score) {
             break;
+        } else if (has_garbage) {
+            cross_2(cleared);
+            if (tsu_rules) {
+                floors[num_layers - 1] &= ~(cleared[0] & LIFE_BLOCK);
+            } else {
+                floors[num_layers - 1] &= ~cleared[0];
+            }
+            floors[2 * num_layers - 1] &= ~cleared[1];
         }
         total_score += score;
     }
     int all_clear_bonus = 0;
     if (total_score) {
         all_clear_bonus = 8500;
-        for (int i = 0; i < num_colors; ++i) {
-            if (floors[num_colors + i]) {
+        for (int i = 0; i < num_layers; ++i) {
+            if (floors[num_layers + i]) {
                 all_clear_bonus = 0;
                 break;
             }

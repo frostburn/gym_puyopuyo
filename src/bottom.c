@@ -49,8 +49,8 @@ int bottom_handle_gravity(puyos_t *floor, int num_colors) {
   return iterations;
 }
 
-int bottom_clear_groups(puyos_t *floor, int num_colors) {
-  int num_cleared = 0;
+puyos_t bottom_clear_groups(puyos_t *floor, int num_colors) {
+  puyos_t cleared = 0;
   for (int i = 0; i < num_colors; ++i) {
     puyos_t bottom = floor[i];
     for (int j = WIDTH * HEIGHT - 2; j >= 0; j -= 2) {
@@ -60,26 +60,29 @@ int bottom_clear_groups(puyos_t *floor, int num_colors) {
       int group_size = popcount(bottom_group);
       if (group_size >= CLEAR_THRESHOLD) {
         floor[i] ^= bottom_group;
-        num_cleared += group_size;
+        cleared |= bottom_group;
       }
       if (!bottom) {
         break;
       }
     }
   }
-  return num_cleared;
+  return cleared;
 }
 
-int bottom_resolve(puyos_t *floor, int num_colors) {
+int bottom_resolve(puyos_t *floor, int num_layers, int has_garbage) {
   int chain = -1;
   while(1) {
     ++chain;
-    int iterations = bottom_handle_gravity(floor, num_colors);
+    int iterations = bottom_handle_gravity(floor, num_layers);
     if (iterations == 1 && chain > 0) {
       break;
     }
-    if (!bottom_clear_groups(floor, num_colors)) {
+    puyos_t cleared = bottom_clear_groups(floor, num_layers - has_garbage);
+    if (!cleared) {
       break;
+    } else if (has_garbage) {
+      floor[num_layers - 1] &= ~cross(cleared);
     }
   }
   return chain;

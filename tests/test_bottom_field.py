@@ -73,6 +73,37 @@ def test_resolve():
     assert (chain == 3)
 
 
+def test_resolve_garbage():
+    O = Y + 1  # noqa
+    stack = [
+        R, Y, _, _, _, _, _, _,
+        _, _, _, _, _, _, _, _,
+        _, _, _, _, _, _, _, _,
+        _, _, Y, _, _, _, _, _,
+        _, O, O, O, _, _, _, _,
+        R, G, B, O, O, _, _, _,
+        R, R, G, B, O, O, _, _,
+        G, G, B, B, O, O, O, _,
+    ]
+    field = BottomField.from_list(stack, has_garbage=True)
+    field.render()
+    print()
+    chain = field.resolve()[1]
+    field.render()
+    stack = field.to_list()
+    assert (stack == [
+        _, _, _, _, _, _, _, _,
+        _, _, _, _, _, _, _, _,
+        _, _, _, _, _, _, _, _,
+        _, _, _, _, _, _, _, _,
+        _, _, _, _, _, _, _, _,
+        _, _, _, O, O, _, _, _,
+        _, _, Y, O, O, O, _, _,
+        _, Y, O, O, O, O, O, _,
+    ])
+    assert (chain == 2)
+
+
 def test_overlay():
     field = BottomField(3)
     field.overlay([R, G, _, _, _, _, _, _])

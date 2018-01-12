@@ -12,7 +12,7 @@ ALLOWED_HEIGHTS = (BottomField.HEIGHT, TallField.HEIGHT, 13)
 
 
 class State(object):
-    def __init__(self, height, width, num_colors, num_deals, tsu_rules=False):
+    def __init__(self, height, width, num_layers, num_deals, tsu_rules=False, has_garbage=False):
         if height not in ALLOWED_HEIGHTS:
             raise NotImplementedError("Only heights {} supported".format(ALLOWED_HEIGHTS))
         if width > BottomField.WIDTH:
@@ -22,17 +22,31 @@ class State(object):
         if tsu_rules and not height == 13:
             raise NotImplementedError("Tsu ruleset available only for height 13")
         if height == BottomField.HEIGHT:
-            self.field = BottomField(num_colors)
+            self.field = BottomField(num_layers, has_garbage=has_garbage)
         else:
-            self.field = TallField(num_colors, tsu_rules=tsu_rules)
+            self.field = TallField(num_layers, tsu_rules=tsu_rules, has_garbage=has_garbage)
         self.width = width
         self.height = height
-        self.num_colors = num_colors
         self.num_deals = num_deals
-        self.tsu_rules = tsu_rules
         self.make_actions()
         self.seed()
         self.make_deals()
+
+    @property
+    def num_colors(self):
+        return self.field.num_colors
+
+    @property
+    def num_layers(self):
+        return self.field.num_layers
+
+    @property
+    def has_garbage(self):
+        return self.field.has_garbage
+
+    @property
+    def tsu_rules(self):
+        return getattr(self.field, "tsu_rules", False)
 
     @property
     def max_chain(self):
@@ -107,7 +121,7 @@ class State(object):
 
     def encode_field(self):
         np_state = self.field.encode()
-        return np_state[:self.num_colors, (self.field.HEIGHT - self.height):, :self.width]
+        return np_state[:self.num_layers, (self.field.HEIGHT - self.height):, :self.width]
 
     def encode(self):
         return (self.encode_deals(), self.encode_field())
@@ -159,7 +173,14 @@ class State(object):
         return self.field.resolve()[0]
 
     def clone(self):
-        clone = State(self.height, self.width, self.num_colors, self.num_deals, tsu_rules=self.tsu_rules)
+        clone = State(
+            self.height,
+            self.width,
+            self.num_layers,
+            self.num_deals,
+            tsu_rules=self.tsu_rules,
+            has_garbage=self.has_garbage
+        )
         clone.field.data[:] = self.field.data
         clone.deals[:] = self.deals
         return clone

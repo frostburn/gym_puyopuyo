@@ -5,9 +5,9 @@ void bottom_render(puyos_t *floor, int num_colors);
 
 int bottom_handle_gravity(puyos_t *floor, int num_colors);
 
-int bottom_clear_groups(puyos_t *floor, int num_colors);
+puyos_t bottom_clear_groups(puyos_t *floor, int num_colors);
 
-int bottom_resolve(puyos_t *floor, int num_colors);
+int bottom_resolve(puyos_t *floor, int num_layers, int has_garbage);
 
 char* bottom_encode(puyos_t *floor, int num_colors);
 

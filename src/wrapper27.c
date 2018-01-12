@@ -38,13 +38,14 @@ static PyObject *
 py_bottom_resolve(PyObject *self, PyObject *args)
 {
   int num_colors;
+  int has_garbage;
   const PyByteArrayObject *data;
 
-  if (!PyArg_ParseTuple(args, "Oi", &data, &num_colors))
+  if (!PyArg_ParseTuple(args, "Oii", &data, &num_colors, &has_garbage))
   {
     return NULL;
   }
-  int chain = bottom_resolve((puyos_t*)data->ob_bytes, num_colors);
+  int chain = bottom_resolve((puyos_t*)data->ob_bytes, num_colors, !!has_garbage);
 
   return Py_BuildValue("i", chain);
 }
@@ -116,15 +117,16 @@ py_tall_resolve(PyObject *self, PyObject *args)
 {
   int num_colors;
   int tsu_rules;
+  int has_garbage;
   const PyByteArrayObject *data;
 
-  if (!PyArg_ParseTuple(args, "Oii", &data, &num_colors, &tsu_rules))
+  if (!PyArg_ParseTuple(args, "Oiii", &data, &num_colors, &tsu_rules, &has_garbage))
   {
     return NULL;
   }
 
   int chain;
-  int score = tall_resolve((puyos_t*)data->ob_bytes, num_colors, tsu_rules, &chain);
+  int score = tall_resolve((puyos_t*)data->ob_bytes, num_colors, tsu_rules, !!has_garbage, &chain);
 
   return Py_BuildValue("ii", score, chain);
 }

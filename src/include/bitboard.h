@@ -18,10 +18,14 @@ typedef unsigned long long bitset_t;
 
 int popcount(puyos_t puyos);
 
+puyos_t cross(puyos_t puyos);
+
 puyos_t flood(register puyos_t source, register puyos_t target);
 
 int popcount_2(puyos_t *puyos);
 
 void flood_2(puyos_t *source, puyos_t *target);
+
+void cross_2(puyos_t *puyos);
 
 #endif /* !GYM_PUYOPUYO_BITBOARD_H_GUARD */

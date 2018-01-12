@@ -20,9 +20,9 @@ void tall_render(puyos_t *floors, int num_colors);
 
 int tall_handle_gravity(puyos_t *floors, int num_colors);
 
-int tall_clear_groups(puyos_t *floors, int num_colors, int chain_number, int tsu_rules, puyos_t *cleared);
+int tall_clear_groups(puyos_t *bottom, puyos_t *top, int num_colors, int chain_number, int tsu_rules, puyos_t *cleared);
 
-int tall_resolve(puyos_t *floors, int num_colors, int tsu_rules, int *chain_out);
+int tall_resolve(puyos_t *floors, int num_colors, int tsu_rules, int has_garbage, int *chain_out);
 
 char* tall_encode(puyos_t *floors, int num_colors);
 

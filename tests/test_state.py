@@ -20,7 +20,7 @@ def test_action_mask():
     stack = [
         R, _, R, _, _, _, G, _,
     ]
-    state.field = BottomField.from_list(stack, num_colors=state.num_colors)
+    state.field = BottomField.from_list(stack, num_layers=state.num_layers)
     state.render()
     mask = state.get_action_mask()
     print(mask)
@@ -40,7 +40,7 @@ def test_action_mask_tsu():
     stack += [
         R, _, R, G, _, G, _, _,
     ]
-    state.field = TallField.from_list(stack, num_colors=state.num_colors, tsu_rules=state.tsu_rules)
+    state.field = TallField.from_list(stack, num_layers=state.num_layers, tsu_rules=state.tsu_rules)
     state.render()
     mask = state.get_action_mask()
     print(mask)
@@ -80,7 +80,7 @@ def test_resolve():
         _, G, G, G, _, _, _, _,
         _, R, R, R, G, G, G, _,
     ]
-    state.field = BottomField.from_list(stack, num_colors=state.num_colors)
+    state.field = BottomField.from_list(stack, num_layers=state.num_layers)
     state.render()
     reward = state.step(0, 1)
     state.render()
@@ -99,7 +99,7 @@ def test_no_moves():
         B, G, _, _, _, _, _, _,
         B, R, _, _, _, _, _, _,
     ]
-    state.field = BottomField.from_list(stack, num_colors=state.num_colors)
+    state.field = BottomField.from_list(stack, num_layers=state.num_layers)
     state.render()
     assert (not state.get_children())
 
@@ -122,6 +122,6 @@ def test_has_moves_tsu():
         G, R, _, _, _, _, _, _,
         Y, R, _, _, _, _, _, _,
     ]
-    state.field = TallField.from_list(stack, num_colors=state.num_colors)
+    state.field = TallField.from_list(stack, num_layers=state.num_layers, tsu_rules=state.tsu_rules)
     state.render()
     assert (state.get_children())
