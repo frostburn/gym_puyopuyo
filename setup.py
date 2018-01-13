@@ -10,7 +10,7 @@ else:
 
 core = Extension(
     'puyocore',
-    sources=[wrapper, 'src/bottom.c', 'src/tall.c', 'src/bitboard.c'],
+    sources=[wrapper, 'src/bottom.c', 'src/tall.c', 'src/bitboard.c', 'src/bottom_tree.c'],
     include_dirs=['src/include'],
 )
 

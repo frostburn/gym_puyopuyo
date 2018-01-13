@@ -8,7 +8,7 @@ There are four available environments small, wide, Tsu and large.
 ## Usage
 ```python
 from gym_puyopuyo.env import register
-from gym.envs.registration import make
+from gym import make
 
 register()
 

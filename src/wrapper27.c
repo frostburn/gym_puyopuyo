@@ -83,6 +83,43 @@ py_bottom_valid_moves(PyObject *self, PyObject *args)
 }
 
 static PyObject *
+py_bottom_tree_search(PyObject *self, PyObject *args)
+{
+  const PyByteArrayObject *data;
+  int num_layers;
+  int has_garbage;
+  bitset_t action_mask;
+  PyObject *layers_list;
+  int depth;
+  double factor;
+
+  if (!PyArg_ParseTuple(args, "OiiKOid", &data, &num_layers, &has_garbage, &action_mask, &layers_list, &depth, &factor))
+  {
+    return NULL;
+  }
+
+  int len_layers = PyList_Size(layers_list);
+  int *layers = malloc(sizeof(int) * len_layers);
+  for (int i = 0; i < len_layers; ++i) {
+    PyObject *item = PyList_GetItem(layers_list, i);
+    if (!item) {
+      return NULL;
+    }
+    int color = PyLong_AsLong(item);
+    if (color < 0) {
+      return NULL;
+    }
+    layers[i] = color;
+  }
+
+  double score = bottom_tree_search((puyos_t*)data->ob_bytes, num_layers, !!has_garbage, action_mask, layers, len_layers / 2, depth, factor);
+
+  free(layers);
+
+  return Py_BuildValue("d", score);
+}
+
+static PyObject *
 py_tall_render(PyObject *self, PyObject *args)
 {
   int num_colors;
@@ -186,6 +223,7 @@ static PyMethodDef PuyoMethods[] = {
   {"bottom_resolve", py_bottom_resolve, METH_VARARGS, "Fully resolve a bottom state and return the chain length."},
   {"bottom_encode", py_bottom_encode, METH_VARARGS, "Encodes a bottom state as an array of chars."},
   {"bottom_valid_moves", py_bottom_valid_moves, METH_VARARGS, "Returns a bitset of valid moves on a bottom state."},
+  {"bottom_tree_search", py_bottom_tree_search, METH_VARARGS, "Does a tree search with the given colors."},
   {"tall_render", py_tall_render, METH_VARARGS, "Debug print for tall state inspection."},
   {"tall_handle_gravity", py_tall_handle_gravity, METH_VARARGS, "Handle puyo gravity for a tall state."},
   {"tall_resolve", py_tall_resolve, METH_VARARGS, "Fully resolve a tall state and return the score and the chain length."},
