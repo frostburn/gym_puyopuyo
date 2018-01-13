@@ -110,14 +110,12 @@ def test_overlay():
     field.handle_gravity()
     field.render()
     print()
-    valid = field.overlay([
+    field.overlay([
         _, Y, _, _, _, _, _, _,
         _, Y, _, _, _, _, _, _,
     ])
     field.handle_gravity()
     field.render()
-    print()
-    assert (valid)
     stack = field.to_list()
     assert (stack == [
         _, _, _, _, _, _, _, _,
@@ -131,11 +129,15 @@ def test_overlay():
     ])
 
 
-def test_invalid_overlay():
+def test_overlapping_overlay():
     field = BottomField(4)
     field.overlay([R, B, _, _, _, _, _, _])
-    valid = field.overlay([G, Y, _, _, _, _, _, _])
-    assert (not valid)
+    field.render()
+    print()
+    field.overlay([G, Y, G, _, _, _, _, _])
+    field.render()
+    stack = field.to_list()
+    assert (stack[:8] == [R, B, G, _, _, _, _, _])
 
 
 def test_encode():

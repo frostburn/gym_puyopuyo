@@ -57,22 +57,14 @@ class BottomField(object):
         return (chain * chain, chain)
 
     def overlay(self, stack):
-        layer = BottomField.from_list(stack)
+        layer = BottomField.from_list(stack, num_layers=self.num_layers)
         if layer.num_layers > self.num_layers:
-            raise ValueError("Overlay has too many colors")
+            raise ValueError("Overlay has too many layers")
         mask = bytearray(8)
         for i, mine in enumerate(self.data):
             mask[i % 8] |= mine
         for i, (mine, yours) in enumerate(zip(self.data, layer.data)):
-            if mask[i % 8] & yours:
-                return False
-            self.data[i] = (mine | yours)
-        return True
-
-    def overlay_unsafe(self, stack):
-        layer = BottomField.from_list(stack)
-        for i, puyos in enumerate(layer.data):
-            self.data[i] |= puyos
+            self.data[i] = (mine | (yours & ~mask[i % 8]))
 
     def encode(self):
         data = core.bottom_encode(self.data, self.num_layers)
@@ -174,10 +166,21 @@ class TallField(object):
         data = core.tall_encode(self.data, self.num_layers)
         return np.fromstring(data, dtype="int8").reshape(self.num_layers, self.HEIGHT, self.WIDTH)
 
-    def overlay_unsafe(self, stack):
-        layer = BottomField.from_list(stack)
-        for i, puyos in enumerate(layer.data):
-            self.data[i] |= puyos
+    def overlay(self, stack):
+        layer = TallField.from_list(stack, num_layers=self.num_layers)
+        if layer.num_layers > self.num_layers:
+            raise ValueError("Overlay has too many layers")
+        top_mask = bytearray(8)
+        bottom_mask = bytearray(8)
+        half = 8 * self.num_layers
+        for i, mine in enumerate(self.data[:half]):
+            top_mask[i % 8] |= mine
+        for i, mine in enumerate(self.data[half:]):
+            bottom_mask[i % 8] |= mine
+        for i, (mine, yours) in enumerate(zip(self.data[:half], layer.data[:half])):
+            self.data[i] = (mine | (yours & ~top_mask[i % 8]))
+        for i, (mine, yours) in enumerate(zip(self.data[half:], layer.data[half:])):
+            self.data[i + half] = (mine | (yours & ~bottom_mask[i % 8]))
 
     def _valid_moves(self):
         return core.tall_valid_moves(self.data, self.num_layers, self.tsu_rules)
