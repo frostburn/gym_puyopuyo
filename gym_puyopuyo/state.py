@@ -28,6 +28,7 @@ class State(object):
         self.width = width
         self.height = height
         self.num_deals = num_deals
+        self.garbage_x = 0 if has_garbage else None
         self.make_actions()
         self.seed()
         self.make_deals()
@@ -111,6 +112,25 @@ class State(object):
             self.np_random.randint(0, self.num_colors),
             self.np_random.randint(0, self.num_colors),
         ))
+
+    def add_garbage(self, amount):
+        if not self.has_garbage:
+            raise ValueError("This state doesn't support garbage")
+        if amount < 0:
+            raise ValueError("Cannot add negative amount of garbage")
+        garbage = self.field.num_colors
+        stack = []
+        while amount:
+            line = [None] * self.field.WIDTH
+            while self.garbage_x < self.width and amount:
+                line[self.garbage_x] = garbage
+                self.garbage_x += 1
+                amount -= 1
+            if self.garbage_x >= self.width:
+                self.garbage_x = 0
+            stack = line + stack
+        self.field.overlay(stack)
+        self.field.handle_gravity()
 
     def encode_deals(self):
         np_deals = np.zeros((self.num_colors, self.num_deals, 2))

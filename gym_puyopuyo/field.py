@@ -6,6 +6,7 @@ import numpy as np
 
 import puyocore as core
 from gym_puyopuyo import util
+from gym_puyopuyo.bitboard import popcount
 
 
 class BottomField(object):
@@ -86,6 +87,10 @@ class BottomField(object):
                         puyo = k
                 result.append(puyo)
         return result
+
+    @property
+    def popcount(self):
+        return popcount(self.data)
 
     @classmethod
     def from_list(cls, stack, num_layers=None, has_garbage=False):
@@ -200,6 +205,10 @@ class TallField(object):
                         puyo = k
                 result.append(puyo)
         return result
+
+    @property
+    def popcount(self):
+        return popcount(self.data)
 
     @classmethod
     def from_list(cls, stack, num_layers=None, tsu_rules=False, has_garbage=False):
