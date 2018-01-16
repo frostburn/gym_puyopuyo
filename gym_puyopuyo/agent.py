@@ -80,26 +80,38 @@ class BaseTreeSearchAgent(object):
 
 
 class SmallTreeSearchAgent(BaseTreeSearchAgent):
+    """
+    Average reward per step ~ 1.57
+    """
     depth = 4
     factor = 0.22
     occupation_threshold = 0.4
 
 
 class WideTreeSearchAgent(BaseTreeSearchAgent):
+    """
+    Average reward per step ~ 2.92
+    """
     depth = 3
     factor = 0.22
     occupation_threshold = 0.66
 
 
 class TsuTreeSearchAgent(BaseTreeSearchAgent):
+    """
+    Average reward per step ~ 1320
+    """
     depth = 3
-    factor = 10.0
-    occupation_threshold = 0.75
+    factor = 20.0
+    occupation_threshold = 0.7
 
 
 class LargeTreeSearchAgent(BaseTreeSearchAgent):
+    """
+    Average reward per step ~ 2100
+    """
     depth = 3
-    factor = 10.0
+    factor = 15.0
     occupation_threshold = 0.75
 
 
