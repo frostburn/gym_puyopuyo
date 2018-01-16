@@ -23,7 +23,7 @@ int bottom_group_heuristic(puyos_t *floor, int num_colors) {
     return score;
 }
 
-double bottom_tree_search(
+double bottom_tree_search_single(
     puyos_t *floor,
     int num_layers,
     int has_garbage,
@@ -31,9 +31,9 @@ double bottom_tree_search(
     int *colors,
     int num_deals,
     int depth,
-    double factor
+    double factor,
+    puyos_t *child_buffer
 ) {
-    int num_colors = num_layers - has_garbage;
     bitset_t valid = bottom_valid_moves(floor, num_layers);
     valid |= valid << (NUM_ACTIONS / 2);
     valid &= action_mask;
@@ -42,16 +42,8 @@ double bottom_tree_search(
         return DEATH_VALUE;
     }
 
-    if (depth == 0) {
-        return factor * bottom_group_heuristic(floor, num_colors);
-    }
-
-    double score = -1;
-    puyos_t *child = malloc(sizeof(puyos_t) * num_layers);
-    int *temp_colors = NULL;
-    if (num_deals <= 1) {
-        temp_colors = malloc(sizeof(int) * 2);
-    }
+    double score = DEATH_VALUE;
+    puyos_t *child = child_buffer;
 
     // Symmetry reduction
     int num_actions = NUM_ACTIONS;
@@ -71,36 +63,84 @@ double bottom_tree_search(
         double move_score = bottom_resolve(child, num_layers, has_garbage);
         move_score *= move_score;
 
-        double tree_score;
-        if (num_deals > 1) {
-            // Deterministic search one ply deeper
-            tree_score = bottom_tree_search(child, num_layers, has_garbage, action_mask, colors + 2, num_deals - 1, depth - 1, factor);
-        } else {
-            // Averaged search over all possible plys.
-            tree_score = 0;
-            for (int c0 = 0; c0 < num_colors; ++c0) {
-                temp_colors[0] = c0;
-                // Symmetry reduction
-                for (int c1 = c0; c1 < num_colors; ++c1) {
-                    temp_colors[1] = c1;
-                    double some_score = bottom_tree_search(child, num_layers, has_garbage, action_mask, temp_colors, 0, depth - 1, factor);
-                    // Symmetry compensation
-                    if (c1 == c0) {
-                        tree_score += some_score;
-                    } else {
-                        tree_score += 2 * some_score;
-                    }
-                }
-            }
-            tree_score /= num_colors * num_colors;
-        }
+        double tree_score = bottom_tree_search(
+            child,
+            num_layers,
+            has_garbage,
+            action_mask,
+            colors + 2,
+            num_deals - 1,
+            depth - 1,
+            factor,
+            child_buffer + num_layers
+        );
 
         double child_score = move_score + GAMMA * tree_score;
         if (child_score > score) {
             score = child_score;
         }
     }
-    free(child);
-    free(temp_colors);
     return score;
+}
+
+double bottom_tree_search(
+    puyos_t *floor,
+    int num_layers,
+    int has_garbage,
+    bitset_t action_mask,
+    int *colors,
+    int num_deals,
+    int depth,
+    double factor,
+    puyos_t *child_buffer
+) {
+    int num_colors = num_layers - has_garbage;
+
+    if (depth <= 0) {
+        return factor * bottom_group_heuristic(floor, num_colors);
+    }
+
+    if (num_deals > 0) {
+        // Deterministic search with the provided colors.
+        return bottom_tree_search_single(
+            floor,
+            num_layers,
+            has_garbage,
+            action_mask,
+            colors,
+            num_deals - 1,
+            depth,
+            factor,
+            child_buffer
+        );
+    } else {
+        // Averaged search over all possible color combinations.
+        double tree_score = 0;
+        for (int c0 = 0; c0 < num_colors; ++c0) {
+            colors[0] = c0;
+            // Symmetry reduction
+            for (int c1 = c0; c1 < num_colors; ++c1) {
+                colors[1] = c1;
+                double single_score = bottom_tree_search_single(
+                    floor,
+                    num_layers,
+                    has_garbage,
+                    action_mask,
+                    colors,
+                    0,
+                    depth,
+                    factor,
+                    child_buffer
+                );
+                // Symmetry compensation
+                if (c1 == c0) {
+                    tree_score += single_score;
+                } else {
+                    tree_score += 2 * single_score;
+                }
+            }
+        }
+        tree_score /= num_colors * num_colors;
+        return tree_score;
+    }
 }

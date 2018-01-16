@@ -89,19 +89,24 @@ py_bottom_tree_search(PyObject *self, PyObject *args)
   int num_layers;
   int has_garbage;
   bitset_t action_mask;
-  PyObject *layers_list;
+  PyObject *colors_list;
   int depth;
   double factor;
 
-  if (!PyArg_ParseTuple(args, "OiiKOid", &data, &num_layers, &has_garbage, &action_mask, &layers_list, &depth, &factor))
+  if (!PyArg_ParseTuple(args, "OiiKOid", &data, &num_layers, &has_garbage, &action_mask, &colors_list, &depth, &factor))
   {
     return NULL;
   }
 
-  int len_layers = PyList_Size(layers_list);
-  int *layers = malloc(sizeof(int) * len_layers);
-  for (int i = 0; i < len_layers; ++i) {
-    PyObject *item = PyList_GetItem(layers_list, i);
+  int len_colors = PyList_Size(colors_list);
+  int *colors;
+  if (2 * depth > len_colors) {
+    colors = malloc(sizeof(int) * 2 * depth);
+  } else {
+    colors = malloc(sizeof(int) * len_colors);
+  }
+  for (int i = 0; i < len_colors; ++i) {
+    PyObject *item = PyList_GetItem(colors_list, i);
     if (!item) {
       return NULL;
     }
@@ -109,12 +114,15 @@ py_bottom_tree_search(PyObject *self, PyObject *args)
     if (color < 0) {
       return NULL;
     }
-    layers[i] = color;
+    colors[i] = color;
   }
 
-  double score = bottom_tree_search((puyos_t*)data->ob_bytes, num_layers, !!has_garbage, action_mask, layers, len_layers / 2, depth, factor);
+  puyos_t *child_buffer = malloc(sizeof(puyos_t) * num_layers * depth);
 
-  free(layers);
+  double score = bottom_tree_search((puyos_t*)data->ob_bytes, num_layers, !!has_garbage, action_mask, colors, len_colors / 2, depth, factor, child_buffer);
+
+  free(colors);
+  free(child_buffer);
 
   return Py_BuildValue("d", score);
 }

@@ -103,6 +103,11 @@ py_bottom_tree_search(PyObject *self, PyObject *args)
     return NULL;
   }
   int *colors = malloc(sizeof(int) * len_colors);
+  if (2 * depth > len_colors) {
+    colors = malloc(sizeof(int) * 2 * depth);
+  } else {
+    colors = malloc(sizeof(int) * len_colors);
+  }
   for (int i = 0; i < len_colors; ++i) {
     PyObject *item = PyList_GetItem(colors_list, i);
     if (!item) {
@@ -115,9 +120,12 @@ py_bottom_tree_search(PyObject *self, PyObject *args)
     colors[i] = color;
   }
 
-  double score = bottom_tree_search((puyos_t*)data->ob_start, num_layers, has_garbage, action_mask, colors, len_colors / 2, depth, factor);
+  puyos_t *child_buffer = malloc(sizeof(puyos_t) * num_layers * depth);
+
+  double score = bottom_tree_search((puyos_t*)data->ob_start, num_layers, has_garbage, action_mask, colors, len_colors / 2, depth, factor, child_buffer);
 
   free(colors);
+  free(child_buffer);
 
   return Py_BuildValue("d", score);
 }
