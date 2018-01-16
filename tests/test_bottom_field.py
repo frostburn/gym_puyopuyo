@@ -189,3 +189,27 @@ def test_too_big_from_list():
     bad_stack = [R, G, B] * 80
     with pytest.raises(ValueError):
         BottomField.from_list(bad_stack)
+
+
+def _reference_valid_moves(lines):
+    valid = []
+    for x in range(7):
+        if (lines[0] & (1 << x)) | (lines[0] & (2 << x)):
+            valid.append(False)
+        else:
+            valid.append(True)
+    for x in range(8):
+        if (lines[0] & (1 << x)) | (lines[1] & (1 << x)):
+            valid.append(False)
+        else:
+            valid.append(True)
+    return sum(v * (1 << i) for i, v in enumerate(valid))
+
+
+def test_valid_moves():
+    field = BottomField(1)
+    for top in range(1 << 16):
+        field.data[0] = top & 255
+        field.data[1] = top >> 8
+
+        assert (_reference_valid_moves(field.data) == field._valid_moves())

@@ -26,6 +26,6 @@ int tall_resolve(puyos_t *floors, int num_colors, int tsu_rules, int has_garbage
 
 char* tall_encode(puyos_t *floors, int num_colors);
 
-bitset_t tall_valid_moves(puyos_t *floors, int num_colors, int tsu_rules);
+bitset_t tall_valid_moves(puyos_t *floors, int num_colors, int width, int tsu_rules);
 
 #endif /* !GYM_PUYOPUYO_TALL_H_GUARD */

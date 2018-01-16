@@ -71,7 +71,7 @@ class BottomField(object):
         data = core.bottom_encode(self.data, self.num_layers)
         return np.fromstring(data, dtype="int8").reshape(self.num_layers, self.HEIGHT, self.WIDTH)
 
-    def _valid_moves(self):
+    def _valid_moves(self, width=None):
         return core.bottom_valid_moves(self.data, self.num_layers)
 
     def _make_move(self, action, puyo_a, puyo_b):
@@ -91,6 +91,15 @@ class BottomField(object):
     @property
     def popcount(self):
         return popcount(self.data)
+
+    @property
+    def sane(self):
+        mask = bytearray(8)
+        for i, line in enumerate(self.data):
+            if line & mask[i % 8]:
+                return False
+            mask[i % 8] |= line
+        return True
 
     @classmethod
     def from_list(cls, stack, num_layers=None, has_garbage=False):
@@ -187,8 +196,8 @@ class TallField(object):
         for i, (mine, yours) in enumerate(zip(self.data[half:], layer.data[half:])):
             self.data[i + half] = (mine | (yours & ~bottom_mask[i % 8]))
 
-    def _valid_moves(self):
-        return core.tall_valid_moves(self.data, self.num_layers, self.tsu_rules)
+    def _valid_moves(self, width):
+        return core.tall_valid_moves(self.data, self.num_layers, width, self.tsu_rules)
 
     def _make_move(self, action, puyo_a, puyo_b):
         core.make_move(self.data, action, puyo_a, puyo_b)
@@ -209,6 +218,21 @@ class TallField(object):
     @property
     def popcount(self):
         return popcount(self.data)
+
+    @property
+    def sane(self):
+        half = 8 * self.num_layers
+        mask = bytearray(8)
+        for i, line in enumerate(self.data[:half]):
+            if line & mask[i % 8]:
+                return False
+            mask[i % 8] |= line
+        mask = bytearray(8)
+        for i, line in enumerate(self.data[half:]):
+            if line & mask[i % 8]:
+                return False
+            mask[i % 8] |= line
+        return True
 
     @classmethod
     def from_list(cls, stack, num_layers=None, tsu_rules=False, has_garbage=False):

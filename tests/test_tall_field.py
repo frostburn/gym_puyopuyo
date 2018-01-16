@@ -414,3 +414,31 @@ def test_encode():
         ],
     ]
     assert (encoded == expected).all()
+
+
+def _reference_valid_moves(lines, width):
+    valid = []
+    for x in range(7):
+        if x >= width - 1:
+            valid.append(False)
+        elif (~lines[3] & (1 << x)) | (~lines[3] & (2 << x)):
+            valid.append(True)
+        else:
+            valid.append(False)
+    for x in range(8):
+        if x >= width:
+            valid.append(False)
+        elif (lines[3] & (1 << x)):
+            valid.append(False)
+        else:
+            valid.append(True)
+    return sum(v * (1 << i) for i, v in enumerate(valid))
+
+
+@pytest.mark.parametrize("width", [6, 8])
+def test_valid_moves_tsu(width):
+    field = TallField(1, tsu_rules=True)
+    for top in range(1 << 16):
+        field.data[3] = top & 255
+        field.data[4] = top >> 8
+        assert (_reference_valid_moves(field.data, width) == field._valid_moves(width))

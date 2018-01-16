@@ -219,7 +219,7 @@ char* tall_encode(puyos_t *floors, int num_colors) {
   return data;
 }
 
-bitset_t tall_valid_moves(puyos_t *floors, int num_colors, int tsu_rules) {
+bitset_t tall_valid_moves(puyos_t *floors, int num_colors, int width, int tsu_rules) {
   if (!tsu_rules) {
     return bottom_valid_moves(floors, num_colors);
   }
@@ -229,10 +229,10 @@ bitset_t tall_valid_moves(puyos_t *floors, int num_colors, int tsu_rules) {
   }
   all >>= 3 * V_SHIFT;
 
-  bitset_t result = TOP & ~all;
+  bitset_t result = ~all;
   result |= result >> 1;
-  result &= 0x7FULL;
-  result |= (TOP & ~all) << (WIDTH - 1);
+  result &= (1 << (width - 1)) - 1;
+  result |= (((1 << width) - 1) & ~all) << (WIDTH - 1);
 
   return result;
 }

@@ -119,14 +119,14 @@ void make_move(puyos_t *floor, int action, int color_a, int color_b) {
   if (x >= WIDTH - 1) {
     x -= WIDTH - 1;
     orientation = 1;
-  }
-  if (x >= WIDTH) {
-    x -= WIDTH;
-    orientation = 2;
-  }
-  if (x >= WIDTH - 1) {
-    x -= WIDTH - 1;
-    orientation = 3;
+    if (x >= WIDTH) {
+      x -= WIDTH;
+      orientation = 2;
+      if (x >= WIDTH - 1) {
+        x -= WIDTH - 1;
+        orientation = 3;
+      }
+    }
   }
   if (orientation == 0) {
     floor[color_a] |= 1ULL << x;

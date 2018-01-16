@@ -188,14 +188,15 @@ static PyObject *
 py_tall_valid_moves(PyObject *self, PyObject *args)
 {
   int num_colors;
+  int width;
   int tsu_rules;
   const PyByteArrayObject *data;
 
-  if (!PyArg_ParseTuple(args, "Yip", &data, &num_colors, &tsu_rules))
+  if (!PyArg_ParseTuple(args, "Yiip", &data, &num_colors, &width, &tsu_rules))
   {
     return NULL;
   }
-  bitset_t valid = tall_valid_moves((puyos_t*)data->ob_start, num_colors, tsu_rules);
+  bitset_t valid = tall_valid_moves((puyos_t*)data->ob_start, num_colors, width, tsu_rules);
 
   return Py_BuildValue("K", valid);
 }

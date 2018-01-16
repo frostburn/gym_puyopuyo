@@ -12,6 +12,8 @@ ALLOWED_HEIGHTS = (BottomField.HEIGHT, TallField.HEIGHT, 13)
 
 
 class State(object):
+    TESTING = False
+
     def __init__(self, height, width, num_layers, num_deals, tsu_rules=False, has_garbage=False):
         if height not in ALLOWED_HEIGHTS:
             raise NotImplementedError("Only heights {} supported".format(ALLOWED_HEIGHTS))
@@ -173,7 +175,7 @@ class State(object):
 
     def get_action_mask(self):
         result = np.zeros(len(self.actions))
-        bitset = self.field._valid_moves()
+        bitset = self.field._valid_moves(self.width)
         for i, (x, orientation) in enumerate(self.actions):
             index = self._validation_actions.index((x, orientation % 2))
             if bitset & (1 << index):
@@ -181,16 +183,18 @@ class State(object):
         return result
 
     def validate_action(self, x, orientation):
-        orientation %= 2
-        bitset = self.field._valid_moves()
-        index = self._validation_actions.index((x, orientation))
+        bitset = self.field._valid_moves(self.width)
+        index = self._validation_actions.index((x, orientation % 2))
         return bool(bitset & (1 << index))
 
     def step(self, x, orientation):
         if not self.validate_action(x, orientation):
             return -1
         self.play_deal(x, orientation)
-        return self.field.resolve()[0]
+        reward = self.field.resolve()[0]
+        if self.TESTING:
+            assert (self.field.sane)
+        return reward
 
     def clone(self):
         clone = State(
