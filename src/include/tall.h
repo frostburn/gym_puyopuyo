@@ -28,4 +28,6 @@ char* tall_encode(puyos_t *floors, int num_colors);
 
 bitset_t tall_valid_moves(puyos_t *floors, int num_colors, int width, int tsu_rules);
 
+double tall_tree_search(puyos_t*, int, int, int, int, bitset_t, int*, int, int, double, puyos_t*);
+
 #endif /* !GYM_PUYOPUYO_TALL_H_GUARD */

@@ -203,6 +203,56 @@ py_tall_valid_moves(PyObject *self, PyObject *args)
 }
 
 static PyObject *
+py_tall_tree_search(PyObject *self, PyObject *args)
+{
+  const PyByteArrayObject *data;
+  int num_layers;
+  int width;
+  int tsu_rules;
+  int has_garbage;
+  bitset_t action_mask;
+  PyObject *colors_list;
+  int depth;
+  double factor;
+
+  if (!PyArg_ParseTuple(args, "OiiiiKOid", &data, &num_layers, &width, &tsu_rules, &has_garbage, &action_mask, &colors_list, &depth, &factor))
+  {
+    return NULL;
+  }
+
+  int len_colors = PyList_Size(colors_list);
+  if (len_colors % 2) {
+    return NULL;
+  }
+  int *colors;
+  if (2 * depth > len_colors) {
+    colors = malloc(sizeof(int) * 2 * depth);
+  } else {
+    colors = malloc(sizeof(int) * len_colors);
+  }
+  for (int i = 0; i < len_colors; ++i) {
+    PyObject *item = PyList_GetItem(colors_list, i);
+    if (!item) {
+      return NULL;
+    }
+    int color = PyLong_AsLong(item);
+    if (color < 0) {
+      return NULL;
+    }
+    colors[i] = color;
+  }
+
+  puyos_t *child_buffer = malloc(sizeof(puyos_t) * num_layers * NUM_FLOORS * depth);
+
+  double score = tall_tree_search((puyos_t*)data->ob_bytes, num_layers, width, tsu_rules, has_garbage, action_mask, colors, len_colors / 2, depth, factor, child_buffer);
+
+  free(colors);
+  free(child_buffer);
+
+  return Py_BuildValue("d", score);
+}
+
+static PyObject *
 py_make_move(PyObject *self, PyObject *args)
 {
   int action, color_a, color_b;
@@ -230,6 +280,7 @@ static PyMethodDef PuyoMethods[] = {
   {"tall_resolve", py_tall_resolve, METH_VARARGS, "Fully resolve a tall state and return the score and the chain length."},
   {"tall_encode", py_tall_encode, METH_VARARGS, "Encodes a tall state as an array of chars."},
   {"tall_valid_moves", py_tall_valid_moves, METH_VARARGS, "Returns a bitset of valid moves on a tall state."},
+  {"tall_tree_search", py_tall_tree_search, METH_VARARGS, "Does a tree search with the given colors."},
   {"make_move", py_make_move, METH_VARARGS, "Overlays two puyos of the given colors on top of the field."},
   {NULL, NULL, 0, NULL}
 };

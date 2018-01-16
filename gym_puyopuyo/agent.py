@@ -3,15 +3,12 @@ import random
 import numpy as np
 
 import puyocore as core
-from gym_puyopuyo.field import BottomField
+from gym_puyopuyo.field import TallField
 
 GAMMA = 0.95
-DEATH_VALUE = -10
 
 
 def tree_search_actions(state, depth, factor=0.22, occupation_threshold=0.0):
-    if not isinstance(state.field, BottomField):
-        raise ValueError("Can only search bottom fields")
     colors = []
     for deal in state.deals[1:]:
         colors.extend(deal)
@@ -20,27 +17,35 @@ def tree_search_actions(state, depth, factor=0.22, occupation_threshold=0.0):
     for action in state.actions:
         action_mask |= 1 << state._validation_actions.index(action)
 
+    search_args = [
+        state.num_layers,
+        state.has_garbage,
+        action_mask,
+        colors,
+        depth - 1,
+        factor,
+    ]
+    search_fun = core.bottom_tree_search
+    if isinstance(state.field, TallField):
+        search_args.insert(1, state.tsu_rules)
+        search_args.insert(1, state.width)
+        search_fun = core.tall_tree_search
+
     base_popcount = state.field.popcount
     prevent_chains = (base_popcount < occupation_threshold * state.width * state.height)
 
     best_indices = []
-    best_score = DEATH_VALUE
+    best_score = float("-inf")
 
     possible_indices = []
-    possible_score = DEATH_VALUE
+    possible_score = float("-inf")
     for index, (child, score) in enumerate(state.get_children(True)):
         if not child:
             continue
 
-        tree_score = core.bottom_tree_search(
-            child.field.data,
-            child.num_layers,
-            child.has_garbage,
-            action_mask,
-            colors,
-            depth - 1,
-            factor
-        )
+        args = [child.field.data] + search_args
+        tree_score = search_fun(*args)
+
         child_score = score + GAMMA * tree_score
 
         if prevent_chains and child.field.popcount < base_popcount:
@@ -55,7 +60,6 @@ def tree_search_actions(state, depth, factor=0.22, occupation_threshold=0.0):
                 best_score = child_score
             elif child_score == best_score:
                 best_indices.append(index)
-
     return best_indices or possible_indices or [np.random.randint(0, len(state.actions))]
 
 
@@ -87,7 +91,21 @@ class WideTreeSearchAgent(BaseTreeSearchAgent):
     occupation_threshold = 0.66
 
 
+class TsuTreeSearchAgent(BaseTreeSearchAgent):
+    depth = 3
+    factor = 10.0
+    occupation_threshold = 0.75
+
+
+class LargeTreeSearchAgent(BaseTreeSearchAgent):
+    depth = 3
+    factor = 10.0
+    occupation_threshold = 0.75
+
+
 AGENTS = {
     "small": SmallTreeSearchAgent,
     "wide": WideTreeSearchAgent,
+    "tsu": TsuTreeSearchAgent,
+    "large": LargeTreeSearchAgent,
 }
