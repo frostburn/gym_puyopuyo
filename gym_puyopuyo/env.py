@@ -3,8 +3,8 @@ import sys
 
 import gym
 import gym.envs.registration
+import numpy as np
 from gym import spaces
-import numpy as np  # noqa: I001
 from six import StringIO
 
 from gym_puyopuyo.record import read_record

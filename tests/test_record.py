@@ -4,8 +4,8 @@ import json
 
 from six import StringIO
 
-from gym_puyopuyo.record import read_record, write_record  # noqa: I001
-from gym_puyopuyo.state import State  # noqa: I001
+from gym_puyopuyo.record import read_record, write_record
+from gym_puyopuyo.state import State
 
 
 def test_write_record():
