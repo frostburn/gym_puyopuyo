@@ -12,7 +12,7 @@ from gym import make
 
 register()
 
-small_env = make("PuyoPuyoEndlessSmall-v0")
+small_env = make("PuyoPuyoEndlessSmall-v2")
 
 for i in range(10):
     small_env.step(small_env.action_space.sample())
@@ -64,6 +64,63 @@ It has 12x6 grid with a special ghost row on top that isn't cleared when checkin
 It is also possible to play half moves where one of the puyos of the played pieces vanish due to going above the ghost row.
 
 ![Tsu environment rendered](https://user-images.githubusercontent.com/1253499/34640572-8e255518-f2fd-11e7-9748-f8ca48622bf0.png)
+
+### Record format
+The library implements a human-readable JSON format for recording and playing back games.
+
+The data consists of a list of lists with each element corresponding to a puyo or empty space.
+The inner lists each encode a piece and its position with gravity going downwards.
+```json
+[
+    [
+        0, 0, 1, 2, 0, 0,
+        0, 0, 0, 0, 0, 0
+    ],[
+        0, 3, 0, 0, 0, 0,
+        0, 1, 0, 0, 0, 0
+    ],[
+        0, 4, 4, 0, 0, 0,
+        0, 0, 0, 0, 0, 0
+    ]
+]
+```
+```python
+env = make("PuyoPuyoEndlessTsu-v2")
+for observation, reward, done, info in env.read_record(data, include_last=True):
+    state = info["state"]
+    action = info["action"]
+    state.render()
+```
+![Record rendered](https://user-images.githubusercontent.com/1253499/35029789-2e362ff4-fb65-11e7-9c07-2fc46ca9d38a.png)
+
+### Reference agents
+The library comes with reference agents for each of the environments.
+Please note that they operate directly on the underlying model instead of the encoded observations.
+```python
+from gym.envs.registration import make
+
+from gym_puyopuyo.agent import TsuTreeSearchAgent
+from gym_puyopuyo.env import register
+
+register()
+
+agent = TsuTreeSearchAgent()
+
+env = make("PuyoPuyoEndlessTsu-v2")
+
+env.reset()
+state = env.get_root()
+
+for i in range(30):
+    action = agent.get_action(state)
+    _, _, done, info = env.step(action)
+    state = info["state"]
+    if done:
+        break
+
+env.render()
+```
+![Tsu agent rendered](https://user-images.githubusercontent.com/1253499/35029403-770b9edc-fb63-11e7-8859-15a775bc6a68.png)
 
 The core is written in C for optimal performance.
 See the [Wiki](https://github.com/frostburn/gym_puyopuyo/wiki) for implementation details
