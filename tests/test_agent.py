@@ -5,7 +5,7 @@ from gym_puyopuyo.agent import AGENTS
 from gym_puyopuyo.env import ENV_NAMES
 
 
-@pytest.mark.parametrize("name", ["small", "wide"])
+@pytest.mark.parametrize("name", AGENTS.keys())
 def test_agent(name):
     env = make(ENV_NAMES[name])
     agent = AGENTS[name]()

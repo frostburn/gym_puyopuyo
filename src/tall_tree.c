@@ -5,27 +5,35 @@
 
 #include "bitboard.h"
 #include "bottom.h"
+#include "tall.h"
 
 #define GAMMA (0.95)
-#define DEATH_VALUE (-10)
+#define DEATH_VALUE (-10000)
 
-int bottom_group_heuristic(puyos_t *floor, int num_colors) {
+int tall_group_heuristic(puyos_t *top, puyos_t *bottom, int num_colors) {
     int score = 0;
     for (int i = 0; i < num_colors; ++i) {
-        puyos_t layer = floor[i];
-        for (int j = 0; j < WIDTH * HEIGHT; j += 2) {
-            puyos_t group = flood(3ULL << j, layer);
-            layer ^= group;
-            int size = popcount(group);
-            score += size * size;
+        puyos_t layer[2] = {top[i], bottom[i]};
+        for (int k = 0; k < NUM_FLOORS; ++k) {
+            for (int j = 0; j < WIDTH * HEIGHT; j += 2) {
+                puyos_t group[2] = {0, 0};
+                group[k] = 3ULL << j;
+                flood_2(group, layer);
+                layer[0] ^= group[0];
+                layer[1] ^= group[1];
+                int size = popcount_2(group);
+                score += size * size;
+            }
         }
     }
     return score;
 }
 
-double bottom_tree_search_single(
-    puyos_t *floor,
+double tall_tree_search_single(
+    puyos_t *floors,
     int num_layers,
+    int width,
+    int tsu_rules,
     int has_garbage,
     bitset_t action_mask,
     int *colors,
@@ -34,7 +42,7 @@ double bottom_tree_search_single(
     double factor,
     puyos_t *child_buffer
 ) {
-    bitset_t valid = bottom_valid_moves(floor, num_layers);
+    bitset_t valid = tall_valid_moves(floors, num_layers, width, tsu_rules);
     valid |= valid << (NUM_ACTIONS / 2);
     valid &= action_mask;
 
@@ -57,22 +65,24 @@ double bottom_tree_search_single(
             continue;
         }
 
-        memcpy(child, floor, sizeof(puyos_t) * num_layers);
+        memcpy(child, floors, sizeof(puyos_t) * num_layers * NUM_FLOORS);
         make_move(child, i, colors[0], colors[1]);
 
-        double move_score = bottom_resolve(child, num_layers, has_garbage);
-        move_score *= move_score;
+        int dummy;
+        double move_score = tall_resolve(child, num_layers, tsu_rules, has_garbage, &dummy);
 
-        double tree_score = bottom_tree_search(
+        double tree_score = tall_tree_search(
             child,
             num_layers,
+            width,
+            tsu_rules,
             has_garbage,
             action_mask,
             colors + 2,
             num_deals - 1,
             depth - 1,
             factor,
-            child_buffer + num_layers
+            child_buffer + num_layers * NUM_FLOORS
         );
 
         double child_score = move_score + GAMMA * tree_score;
@@ -83,9 +93,11 @@ double bottom_tree_search_single(
     return score;
 }
 
-double bottom_tree_search(
-    puyos_t *floor,
+double tall_tree_search(
+    puyos_t *floors,
     int num_layers,
+    int width,
+    int tsu_rules,
     int has_garbage,
     bitset_t action_mask,
     int *colors,
@@ -97,14 +109,16 @@ double bottom_tree_search(
     int num_colors = num_layers - has_garbage;
 
     if (depth <= 0) {
-        return factor * bottom_group_heuristic(floor, num_colors);
+        return factor * tall_group_heuristic(floors, floors + num_layers, num_colors);
     }
 
     if (num_deals > 0) {
         // Deterministic search with the provided colors.
-        return bottom_tree_search_single(
-            floor,
+        return tall_tree_search_single(
+            floors,
             num_layers,
+            width,
+            tsu_rules,
             has_garbage,
             action_mask,
             colors,
@@ -121,9 +135,11 @@ double bottom_tree_search(
             // Symmetry reduction
             for (int c1 = c0; c1 < num_colors; ++c1) {
                 colors[1] = c1;
-                double single_score = bottom_tree_search_single(
-                    floor,
+                double single_score = tall_tree_search_single(
+                    floors,
                     num_layers,
+                    width,
+                    tsu_rules,
                     has_garbage,
                     action_mask,
                     colors,
