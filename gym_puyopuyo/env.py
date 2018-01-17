@@ -12,10 +12,10 @@ from gym_puyopuyo.state import State
 from gym_puyopuyo.util import permute
 
 ENV_NAMES = {
-    "small": "PuyoPuyoEndlessSmall-v1",
-    "wide": "PuyoPuyoEndlessWide-v1",
-    "tsu": "PuyoPuyoEndlessTsu-v1",
-    "large": "PuyoPuyoEndlessLarge-v1",
+    "small": "PuyoPuyoEndlessSmall-v2",
+    "wide": "PuyoPuyoEndlessWide-v2",
+    "tsu": "PuyoPuyoEndlessTsu-v2",
+    "large": "PuyoPuyoEndlessLarge-v2",
 }
 
 
@@ -68,7 +68,7 @@ class PuyoPuyoEndlessEnv(gym.Env):
     def get_root(self):
         return self.state.clone()
 
-    def read_record(self, file):
+    def read_record(self, file, include_last=False):
         """
         Reads a record and yields observations like step does.
 
@@ -76,12 +76,12 @@ class PuyoPuyoEndlessEnv(gym.Env):
         """
         initial_state = self.state.clone()
         initial_state.reset()
-        for state, action, reward in read_record(file, initial_state):
+        for state, action, reward in read_record(file, initial_state, include_last=include_last):
             info = {
                 "state": state,
-                "action": state.actions.index(action),
+                "action": state.actions.index(action) if action else None,
             }
-            done = (reward < 0)
+            done = True if reward is None else (reward < 0)
             yield state.encode(), reward, done, info
             if done:
                 return

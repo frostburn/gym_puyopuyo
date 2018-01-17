@@ -52,7 +52,7 @@ def infer_deal_and_action(state, stack):
     return deal, (x, orientation)
 
 
-def read_record(file, base_state):
+def read_record(file, base_state, include_last=False):
     if isinstance(file, six.string_types):
         stacks = json.loads(file)
     else:
@@ -87,3 +87,6 @@ def read_record(file, base_state):
         deal, action = delayed.popleft()
         reward = state.step(*action)
         yield clone, action, reward
+
+    if include_last:
+        yield state, None, None
