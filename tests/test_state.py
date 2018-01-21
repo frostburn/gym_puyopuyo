@@ -1,5 +1,6 @@
 from __future__ import print_function
 
+import numpy as np
 import pytest
 
 from gym_puyopuyo.field import BottomField, TallField
@@ -180,3 +181,23 @@ def test_garbage_tsu():
     state.render()
     state.field.resolve()
     assert (state.field.popcount == 51)
+
+
+@pytest.mark.parametrize("height", [8, 16])
+def test_mirrorr(height):
+    state = State(height, 5, 3, 5)
+    twin = state.clone()
+    for i in range(state.num_deals):
+        x = np.random.randint(0, state.width - 1)
+        orientation = np.random.randint(0, 4)
+        state.step(x, orientation)
+        x = state.width - x - 1
+        if orientation % 2 == 0:
+            x -= 1
+            orientation = (orientation + 2) % 4
+        twin.step(x, orientation)
+    state.render()
+    twin.render()
+    state.mirror()
+    state.render()
+    assert (state.field.to_list() == twin.field.to_list())

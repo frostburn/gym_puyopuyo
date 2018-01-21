@@ -71,6 +71,18 @@ class BottomField(object):
         data = core.bottom_encode(self.data, self.num_layers)
         return np.fromstring(data, dtype="int8").reshape(self.num_layers, self.HEIGHT, self.WIDTH)
 
+    def mirror(self):
+        core.mirror(self.data, self.num_layers)
+
+    def shift(self, amount):
+        if amount > 0:
+            for i in range(len(self.data)):
+                self.data[i] <<= amount
+        elif amount < 0:
+            amount = -amount
+            for i in range(len(self.data)):
+                self.data[i] >>= amount
+
     def _valid_moves(self, width=None):
         return core.bottom_valid_moves(self.data, self.num_layers)
 
@@ -195,6 +207,18 @@ class TallField(object):
             self.data[i] = (mine | (yours & ~top_mask[i % 8]))
         for i, (mine, yours) in enumerate(zip(self.data[half:], layer.data[half:])):
             self.data[i + half] = (mine | (yours & ~bottom_mask[i % 8]))
+
+    def mirror(self):
+        core.mirror(self.data, 2 * self.num_layers)
+
+    def shift(self, amount):
+        if amount > 0:
+            for i in range(len(self.data)):
+                self.data[i] <<= amount
+        elif amount < 0:
+            amount = -amount
+            for i in range(len(self.data)):
+                self.data[i] >>= amount
 
     def _valid_moves(self, width):
         return core.tall_valid_moves(self.data, self.num_layers, width, self.tsu_rules)

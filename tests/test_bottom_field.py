@@ -213,3 +213,90 @@ def test_valid_moves():
         field.data[1] = top >> 8
 
         assert (_reference_valid_moves(field.data) == field._valid_moves())
+
+
+def test_mirror():
+    stack = [
+        R, R, _, _, _, _, _, _,
+        G, _, _, _, _, _, _, _,
+        _, _, _, _, _, _, _, _,
+        _, _, _, _, _, _, _, _,
+        _, _, _, _, _, _, _, _,
+        _, _, _, _, _, _, _, _,
+        _, _, G, _, _, _, _, _,
+        _, _, _, _, _, _, _, R,
+    ]
+    field = BottomField.from_list(stack)
+    field.render()
+    print()
+    field.mirror()
+    field.render()
+    stack = field.to_list()
+    assert (stack == [
+        _, _, _, _, _, _, R, R,
+        _, _, _, _, _, _, _, G,
+        _, _, _, _, _, _, _, _,
+        _, _, _, _, _, _, _, _,
+        _, _, _, _, _, _, _, _,
+        _, _, _, _, _, _, _, _,
+        _, _, _, _, _, G, _, _,
+        R, _, _, _, _, _, _, _,
+    ])
+
+
+def test_positive_shift():
+    stack = [
+        R, R, _, _, _, _, _, _,
+        G, _, _, _, _, _, _, _,
+        _, _, _, _, _, _, _, _,
+        _, _, _, _, _, _, _, _,
+        _, _, _, _, _, _, _, _,
+        _, _, _, _, _, _, _, _,
+        _, _, G, _, _, _, _, _,
+        _, _, _, R, _, _, _, _,
+    ]
+    field = BottomField.from_list(stack)
+    field.render()
+    print()
+    field.shift(1)
+    field.render()
+    stack = field.to_list()
+    assert (stack == [
+        _, R, R, _, _, _, _, _,
+        _, G, _, _, _, _, _, _,
+        _, _, _, _, _, _, _, _,
+        _, _, _, _, _, _, _, _,
+        _, _, _, _, _, _, _, _,
+        _, _, _, _, _, _, _, _,
+        _, _, _, G, _, _, _, _,
+        _, _, _, _, R, _, _, _,
+    ])
+
+
+def test_negative_shift():
+    stack = [
+        _, _, G, _, _, _, _, _,
+        _, _, _, G, _, _, _, _,
+        _, _, _, _, _, _, _, _,
+        _, _, _, _, _, _, _, _,
+        _, _, _, _, _, _, _, _,
+        _, _, _, _, _, _, _, _,
+        _, _, G, _, _, _, _, _,
+        _, _, _, R, _, _, _, R,
+    ]
+    field = BottomField.from_list(stack)
+    field.render()
+    print()
+    field.shift(-2)
+    field.render()
+    stack = field.to_list()
+    assert (stack == [
+        G, _, _, _, _, _, _, _,
+        _, G, _, _, _, _, _, _,
+        _, _, _, _, _, _, _, _,
+        _, _, _, _, _, _, _, _,
+        _, _, _, _, _, _, _, _,
+        _, _, _, _, _, _, _, _,
+        G, _, _, _, _, _, _, _,
+        _, R, _, _, _, R, _, _,
+    ])

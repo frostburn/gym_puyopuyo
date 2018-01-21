@@ -142,3 +142,12 @@ void make_move(puyos_t *floor, int action, int color_a, int color_b) {
     floor[color_a] |= 1ULL << (x + V_SHIFT);
   }
 }
+
+void mirror(puyos_t *floor, int num_colors) {
+  for (int i = 0; i < num_colors; ++i) {
+    puyos_t puyos = floor[i];
+    puyos = ((puyos & RIGHT_HALF) >> (WIDTH / 2)) | ((puyos << (WIDTH / 2)) & RIGHT_HALF);
+    puyos = ((puyos & RIGHT_DELTA_1) >> (WIDTH / 4)) | ((puyos << (WIDTH / 4)) & RIGHT_DELTA_1);
+    floor[i] = ((puyos & RIGHT_DELTA_2) >> 1) | ((puyos << 1) & RIGHT_DELTA_2);
+  }
+}

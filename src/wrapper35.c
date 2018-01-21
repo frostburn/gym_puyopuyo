@@ -277,6 +277,21 @@ py_make_move(PyObject *self, PyObject *args)
   Py_RETURN_NONE;
 }
 
+static PyObject *
+py_mirror(PyObject *self, PyObject *args)
+{
+  int num_colors;
+  const PyByteArrayObject *data;
+
+  if (!PyArg_ParseTuple(args, "Yi", &data, &num_colors))
+  {
+    return NULL;
+  }
+  mirror((puyos_t*)data->ob_start, num_colors);
+
+  Py_RETURN_NONE;
+}
+
 static PyMethodDef PuyoMethods[] = {
   {"bottom_render", py_bottom_render, METH_VARARGS, "Debug print for bottom state inspection."},
   {"bottom_handle_gravity", py_bottom_handle_gravity, METH_VARARGS, "Handle puyo gravity for a bottom state."},
@@ -291,6 +306,7 @@ static PyMethodDef PuyoMethods[] = {
   {"tall_valid_moves", py_tall_valid_moves, METH_VARARGS, "Returns a bitset of valid moves on a tall state."},
   {"tall_tree_search", py_tall_tree_search, METH_VARARGS, "Does a tree search with the given colors."},
   {"make_move", py_make_move, METH_VARARGS, "Overlays two puyos of the given colors on top of the field."},
+  {"mirror", py_mirror, METH_VARARGS, "Flip the field horizontally."},
   {NULL, NULL, 0, NULL}
 };
 

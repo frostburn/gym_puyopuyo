@@ -148,6 +148,10 @@ class State(object):
     def encode(self):
         return (self.encode_deals(), self.encode_field())
 
+    def mirror(self):
+        self.field.mirror()
+        self.field.shift(self.width - self.field.WIDTH)
+
     def get_deal_stack(self, x, orientation):
         puyo_a, puyo_b = self.deals[0]
         stack = [None] * (2 * self.field.WIDTH)
@@ -183,8 +187,11 @@ class State(object):
         return result
 
     def validate_action(self, x, orientation):
+        orientation %= 2
+        if x + 1 - orientation >= self.width:
+            return False
         bitset = self.field._valid_moves(self.width)
-        index = self._validation_actions.index((x, orientation % 2))
+        index = self._validation_actions.index((x, orientation))
         return bool(bitset & (1 << index))
 
     def step(self, x, orientation):
