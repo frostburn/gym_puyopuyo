@@ -189,18 +189,8 @@ int tall_resolve(puyos_t *floors, int num_layers, int tsu_rules, int has_garbage
         }
         total_score += score;
     }
-    int all_clear_bonus = 0;
-    if (total_score) {
-        all_clear_bonus = 8500;
-        for (int i = 0; i < num_layers; ++i) {
-            if (floors[num_layers + i]) {
-                all_clear_bonus = 0;
-                break;
-            }
-        }
-    }
     *chain_out = chain;
-    return total_score + all_clear_bonus;
+    return total_score;
 }
 
 char* tall_encode(puyos_t *floors, int num_colors) {

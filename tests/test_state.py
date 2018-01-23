@@ -88,6 +88,33 @@ def test_resolve():
     assert (reward == 4)
 
 
+def test_resolve_large():
+    state = State(16, 7, 2, 1)
+    state.deals[0] = (0, 0)
+    stack = [
+        _, _, _, _, _, _, _, _,
+        _, _, _, _, _, _, _, _,
+        _, _, _, _, _, _, _, _,
+        _, _, _, _, _, _, _, _,
+        _, _, _, _, _, _, _, _,
+        _, _, _, _, _, _, _, _,
+        _, _, _, _, _, _, _, _,
+        _, _, _, _, _, _, _, _,
+        _, _, _, _, _, _, _, _,
+        _, _, _, _, _, _, _, _,
+        _, _, _, _, _, _, _, _,
+        _, _, _, _, _, _, _, _,
+        _, _, _, _, _, _, _, _,
+        _, _, _, _, _, _, _, _,
+        _, G, G, G, _, _, _, _,
+        _, R, R, R, G, G, G, _,
+    ]
+    state.field = TallField.from_list(stack, num_layers=state.num_layers)
+    state.render()
+    reward = state.step(0, 1)
+    assert (reward == 8500 + 760)
+
+
 def test_no_moves():
     state = State(8, 2, 4, 1)
     stack = [

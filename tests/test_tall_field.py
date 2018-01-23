@@ -107,7 +107,7 @@ def test_resolve_plain(tsu_rules):
     assert (score == 940)
 
 
-def test_resolve_all_clear():
+def test_complex_resolve():
     stack = [
         R, G, _, _, _, _, _, _,
         _, _, R, _, _, _, _, _,
@@ -151,8 +151,7 @@ def test_resolve_all_clear():
         _, _, _, _, _, _, _, _,
     ])
     assert (chain == 3)
-    expected = 8500  # all clear
-    expected += 4 * 10 * (1)  # Reds
+    expected = 4 * 10 * (1)  # Reds
     expected += 5 * 10 * (8 + 2)  # Greens
     # Blues, yellows and reds
     num_cleared = 26
