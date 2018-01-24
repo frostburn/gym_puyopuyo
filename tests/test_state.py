@@ -1,5 +1,7 @@
 from __future__ import print_function
 
+import random
+
 import numpy as np
 import pytest
 
@@ -211,7 +213,7 @@ def test_garbage_tsu():
 
 
 @pytest.mark.parametrize("height", [8, 16])
-def test_mirrorr(height):
+def test_mirror(height):
     state = State(height, 5, 3, 5)
     twin = state.clone()
     for i in range(state.num_deals):
@@ -228,3 +230,19 @@ def test_mirrorr(height):
     state.mirror()
     state.render()
     assert (state.field.to_list() == twin.field.to_list())
+
+
+@pytest.mark.parametrize("height", [8, 13, 16])
+def test_field_to_int(height):
+    tsu_rules = (height == 13)
+    state = State(height, 3, 3, 1, tsu_rules=tsu_rules)
+    for _ in range(10):
+        state.step(*random.choice(state.actions))
+    state.render()
+    stack = state.field.to_list()
+    n = state.field_to_int()
+    print(n)
+    state.reset()
+    state.field_from_int(n)
+    state.render()
+    assert (state.field.to_list() == stack)

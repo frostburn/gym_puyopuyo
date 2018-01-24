@@ -100,6 +100,15 @@ class BottomField(object):
                 result.append(puyo)
         return result
 
+    def puyo_at(self, x, y):
+        for k in range(self.num_layers):
+            if self.data[y + self.HEIGHT * k] & (1 << x):
+                return k
+        return None
+
+    def _unsafe_set_puyo_at(self, x, y, puyo):
+        self.data[y + self.HEIGHT * puyo] |= 1 << x
+
     @property
     def popcount(self):
         return popcount(self.data)
@@ -154,8 +163,7 @@ class TallField(object):
     def render(self, outfile=sys.stdout, width=None, height=None):
         height = height or self.HEIGHT
         for i in range(self.HEIGHT - height, self.HEIGHT):
-            row = i % 8
-            offset = i // 8
+            offset, row = divmod(i, 8)
             for j in range(width or self.WIDTH):
                 empty = True
                 for k in range(self.num_colors):
@@ -229,8 +237,7 @@ class TallField(object):
     def to_list(self):
         result = []
         for i in range(self.HEIGHT):
-            row = i % 8
-            offset = i // 8
+            offset, row = divmod(i, 8)
             for j in range(self.WIDTH):
                 puyo = None
                 for k in range(self.num_layers):
@@ -238,6 +245,17 @@ class TallField(object):
                         puyo = k
                 result.append(puyo)
         return result
+
+    def puyo_at(self, x, y):
+        offset, row = divmod(y, 8)
+        for k in range(self.num_layers):
+            if self.data[row + 8 * k + 8 * self.num_layers * offset] & (1 << x):
+                return k
+        return None
+
+    def _unsafe_set_puyo_at(self, x, y, puyo):
+        offset, row = divmod(y, 8)
+        self.data[row + 8 * puyo + 8 * self.num_layers * offset] |= 1 << x
 
     @property
     def popcount(self):
@@ -273,8 +291,7 @@ class TallField(object):
         instance = cls(num_layers, tsu_rules=tsu_rules, has_garbage=has_garbage)
         for index, puyo in enumerate(stack):
             if puyo is not None:
-                column = index % cls.WIDTH
-                row = index // cls.WIDTH
+                row, column = divmod(index, cls.WIDTH)
                 offset = row // 8
                 row %= 8
                 instance.data[row + 8 * puyo + 8 * num_layers * offset] |= 1 << column

@@ -14,7 +14,7 @@ ALLOWED_HEIGHTS = (BottomField.HEIGHT, TallField.HEIGHT, 13)
 class State(object):
     TESTING = False
 
-    def __init__(self, height, width, num_layers, num_deals, tsu_rules=False, has_garbage=False):
+    def __init__(self, height, width, num_layers, num_deals=None, tsu_rules=False, has_garbage=False, deals=None):
         if height not in ALLOWED_HEIGHTS:
             raise NotImplementedError("Only heights {} supported".format(ALLOWED_HEIGHTS))
         if width > BottomField.WIDTH:
@@ -23,6 +23,9 @@ class State(object):
             raise NotImplementedError("Height 13 only available with tsu ruleset")
         if tsu_rules and not height == 13:
             raise NotImplementedError("Tsu ruleset available only for height 13")
+        if num_deals and deals:
+            raise ValueError("Cannot use a partial number of fixed deals")
+
         if height == BottomField.HEIGHT:
             self.field = BottomField(num_layers, has_garbage=has_garbage)
         else:
@@ -33,7 +36,10 @@ class State(object):
         self.garbage_x = 0 if has_garbage else None
         self.make_actions()
         self.seed()
-        self.make_deals()
+        if deals is None:
+            self.make_deals()
+        else:
+            self.deals = list(deals)
 
     @property
     def num_colors(self):
@@ -172,7 +178,8 @@ class State(object):
         return stack
 
     def play_deal(self, x, orientation):
-        self.make_deal()
+        if self.num_deals is not None:
+            self.make_deal()
         puyo_a, puyo_b = self.deals.pop(0)
         index = self._validation_actions.index((x, orientation))
         self.field._make_move(index, puyo_a, puyo_b)
@@ -195,6 +202,8 @@ class State(object):
         return bool(bitset & (1 << index))
 
     def step(self, x, orientation):
+        if not self.deals:
+            return -1
         if not self.validate_action(x, orientation):
             return -1
         self.play_deal(x, orientation)
@@ -206,16 +215,22 @@ class State(object):
         return reward
 
     def clone(self):
+        deals = self.deals[:]
+        if self.num_deals is None:
+            clone_deals = deals
+        else:
+            clone_deals = None
         clone = State(
             self.height,
             self.width,
             self.num_layers,
             self.num_deals,
             tsu_rules=self.tsu_rules,
-            has_garbage=self.has_garbage
+            has_garbage=self.has_garbage,
+            deals=clone_deals,
         )
         clone.field.data[:] = self.field.data
-        clone.deals[:] = self.deals
+        clone.deals = deals
         return clone
 
     def get_children(self, complete=False):
@@ -228,3 +243,21 @@ class State(object):
             elif complete:
                 result.append((None, score))
         return result
+
+    def field_to_int(self):
+        result = 0
+        for y in range(self.field.HEIGHT - self.height, self.field.HEIGHT):
+            for x in range(self.width):
+                result *= self.num_layers + 1
+                puyo = self.field.puyo_at(x, y)
+                if puyo is not None:
+                    result += puyo + 1
+        return result
+
+    def field_from_int(self, n):
+        self.field.reset()
+        for y in reversed(range(self.field.HEIGHT - self.height, self.field.HEIGHT)):
+            for x in reversed(range(self.width)):
+                n, puyo = divmod(n, self.num_layers + 1)
+                if puyo > 0:
+                    self.field._unsafe_set_puyo_at(x, y, puyo - 1)
