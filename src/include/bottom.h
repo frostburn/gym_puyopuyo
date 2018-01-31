@@ -9,6 +9,8 @@ puyos_t bottom_clear_groups(puyos_t *floor, int num_colors);
 
 int bottom_resolve(puyos_t *floor, int num_layers, int has_garbage);
 
+int bottom_clear_groups_and_garbage(puyos_t *floor, int num_layers, int has_garbage);
+
 char* bottom_encode(puyos_t *floor, int num_colors);
 
 bitset_t bottom_valid_moves(puyos_t *floor, int num_colors);

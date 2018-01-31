@@ -60,6 +60,55 @@ def test_gravity():
 
 
 @pytest.mark.parametrize("tsu_rules", [True, False])
+def test_clear_groups(tsu_rules):
+    O = Y + 1  # noqa
+    stack = [
+        _, _, _, _, _, _, _, _,
+        _, _, _, _, _, _, _, _,
+        _, _, _, _, _, _, _, _,
+        O, _, _, _, _, _, _, _,
+        R, _, _, _, _, _, _, _,
+        R, _, _, _, _, _, _, _,
+        R, _, _, _, _, _, _, _,
+        R, _, _, _, _, _, _, _,
+        R, _, _, _, _, _, _, _,
+        R, _, _, _, _, _, _, _,
+        R, _, _, _, _, _, _, _,
+        R, _, _, _, _, _, _, _,
+        R, _, G, _, _, _, _, _,
+        R, _, G, _, _, _, _, _,
+        R, _, G, O, O, _, Y, _,
+        R, _, G, O, O, _, Y, Y,
+    ]
+    field = TallField.from_list(stack, tsu_rules=tsu_rules, has_garbage=True)
+    field.render()
+    score = field.clear_groups(5)
+    print(score)
+    field.render()
+    stack = field.to_list()
+    expected = [_] * 8 * 3
+    if tsu_rules:
+        expected += [O, _, _, _, _, _, _, _]
+    else:
+        expected += [_] * 8
+    assert (score == 10 * (4 + 12) * (3 + 10 + 96))
+    assert (stack == expected + [
+        _, _, _, _, _, _, _, _,
+        _, _, _, _, _, _, _, _,
+        _, _, _, _, _, _, _, _,
+        _, _, _, _, _, _, _, _,
+        _, _, _, _, _, _, _, _,
+        _, _, _, _, _, _, _, _,
+        _, _, _, _, _, _, _, _,
+        _, _, _, _, _, _, _, _,
+        _, _, _, _, _, _, _, _,
+        _, _, _, _, _, _, _, _,
+        _, _, _, _, O, _, Y, _,
+        _, _, _, _, O, _, Y, Y,
+    ])
+
+
+@pytest.mark.parametrize("tsu_rules", [True, False])
 def test_resolve_plain(tsu_rules):
     stack = [
         _, _, _, _, _, _, _, _,

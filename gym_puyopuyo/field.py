@@ -53,6 +53,12 @@ class BottomField(object):
     def handle_gravity(self):
         return core.bottom_handle_gravity(self.data, self.num_layers)
 
+    def clear_groups(self, chain_number):
+        did_clear = core.bottom_clear_groups(self.data, self.num_layers, self.has_garbage)
+        if did_clear:
+            return chain_number * chain_number
+        return 0
+
     def resolve(self):
         chain = core.bottom_resolve(self.data, self.num_layers, self.has_garbage)
         return (chain * chain, chain)
@@ -192,6 +198,9 @@ class TallField(object):
 
     def handle_gravity(self):
         return core.tall_handle_gravity(self.data, self.num_layers)
+
+    def clear_groups(self, chain_number):
+        return core.tall_clear_groups(self.data, self.num_layers, chain_number, self.tsu_rules, self.has_garbage)
 
     def resolve(self):
         return core.tall_resolve(self.data, self.num_layers, self.tsu_rules, self.has_garbage)

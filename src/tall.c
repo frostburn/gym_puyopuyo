@@ -193,6 +193,21 @@ int tall_resolve(puyos_t *floors, int num_layers, int tsu_rules, int has_garbage
     return total_score;
 }
 
+int tall_clear_groups_and_garbage(puyos_t *floors, int num_layers, int chain_number, int tsu_rules, int has_garbage) {
+    puyos_t cleared[2];
+    int score = tall_clear_groups(floors, floors + num_layers, num_layers - has_garbage, chain_number, tsu_rules, cleared);
+    if (score && has_garbage) {
+        cross_2(cleared);
+        if (tsu_rules) {
+            floors[num_layers - 1] &= ~(cleared[0] & LIFE_BLOCK);
+        } else {
+            floors[num_layers - 1] &= ~cleared[0];
+        }
+        floors[2 * num_layers - 1] &= ~cleared[1];
+    }
+    return score;
+}
+
 char* tall_encode(puyos_t *floors, int num_colors) {
   char* data = malloc(num_colors * NUM_FLOORS * WIDTH * HEIGHT * sizeof(char));
   int index = 0;

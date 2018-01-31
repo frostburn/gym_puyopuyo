@@ -88,6 +88,14 @@ int bottom_resolve(puyos_t *floor, int num_layers, int has_garbage) {
   return chain;
 }
 
+int bottom_clear_groups_and_garbage(puyos_t *floor, int num_layers, int has_garbage) {
+  puyos_t cleared = bottom_clear_groups(floor, num_layers - has_garbage);
+  if (cleared && has_garbage) {
+    floor[num_layers - 1] &= ~cross(cleared);
+  }
+  return !!cleared;
+}
+
 char* bottom_encode(puyos_t *floor, int num_colors) {
   char* data = malloc(num_colors * WIDTH * HEIGHT * sizeof(char));
   puyos_t p = 1;

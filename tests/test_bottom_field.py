@@ -43,6 +43,37 @@ def test_gravity():
     ])
 
 
+def test_clear_groups():
+    O = Y + 1  # noqa
+    stack = [
+        _, _, _, _, _, _, _, _,
+        _, _, _, _, _, _, _, _,
+        _, _, _, _, _, _, _, _,
+        _, _, _, _, G, _, _, _,
+        _, _, _, _, G, G, _, _,
+        _, _, O, _, G, Y, _, _,
+        R, R, O, _, G, Y, _, _,
+        R, R, O, _, G, Y, _, _,
+    ]
+    field = BottomField.from_list(stack, has_garbage=True)
+    field.render()
+    print()
+    score = field.clear_groups(3)
+    field.render()
+    stack = field.to_list()
+    assert (score == 9)
+    assert (stack == [
+        _, _, _, _, _, _, _, _,
+        _, _, _, _, _, _, _, _,
+        _, _, _, _, _, _, _, _,
+        _, _, _, _, _, _, _, _,
+        _, _, _, _, _, _, _, _,
+        _, _, O, _, _, Y, _, _,
+        _, _, _, _, _, Y, _, _,
+        _, _, _, _, _, Y, _, _,
+    ])
+
+
 def test_resolve():
     stack = [
         R, Y, _, _, _, _, _, _,

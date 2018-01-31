@@ -24,6 +24,8 @@ int tall_clear_groups(puyos_t *bottom, puyos_t *top, int num_colors, int chain_n
 
 int tall_resolve(puyos_t *floors, int num_colors, int tsu_rules, int has_garbage, int *chain_out);
 
+int tall_clear_groups_and_garbage(puyos_t *floors, int num_layers, int chain_number, int tsu_rules, int has_garbage);
+
 char* tall_encode(puyos_t *floors, int num_colors);
 
 bitset_t tall_valid_moves(puyos_t *floors, int num_colors, int width, int tsu_rules);
