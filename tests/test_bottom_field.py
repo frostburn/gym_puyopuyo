@@ -2,6 +2,7 @@ from __future__ import print_function
 
 import pytest
 
+from gym_puyopuyo import util
 from gym_puyopuyo.field import BottomField
 
 _ = None
@@ -58,7 +59,7 @@ def test_clear_groups():
     field = BottomField.from_list(stack, has_garbage=True)
     field.render()
     print()
-    score = field.clear_groups(3)
+    score = field.clear_groups(2)
     field.render()
     stack = field.to_list()
     assert (score == 9)
@@ -331,3 +332,20 @@ def test_negative_shift():
         G, _, _, _, _, _, _, _,
         _, R, _, _, _, R, _, _,
     ])
+
+
+def test_render_in_place():
+    field = BottomField(2)
+    for i in range(16):
+        field.data[i] = ((i + 4234) ** 5) % 256
+
+    for i in range(8):
+        field.data[i] &= ~field.data[i + 8]
+
+    for i in range(10):
+        print(i)
+    util.print_up(8)
+    print("Let's shift this a bit!", end="")
+    field.render(in_place=True)
+    print("hello")
+    field.render(width=6, height=7)

@@ -5,6 +5,7 @@ import random
 import numpy as np
 import pytest
 
+from gym_puyopuyo import util
 from gym_puyopuyo.field import BottomField, TallField
 from gym_puyopuyo.state import State
 
@@ -246,3 +247,18 @@ def test_field_to_int(height):
     state.field_from_int(n)
     state.render()
     assert (state.field.to_list() == stack)
+
+
+@pytest.mark.parametrize("height", [8, 16])
+def test_render_in_place(height):
+    for i in range(20):
+        print(i)
+    util.print_up(height)
+    print("Move it on up!", end="")
+    state = State(height, 7, 6, 4)
+    state.step(2, 3)
+    state.step(4, 2)
+    state.render(in_place=True)
+    print("hey!")
+    state.render()
+    print("wohou!")
