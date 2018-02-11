@@ -2,7 +2,6 @@ import random
 import sys
 
 import gym
-import gym.envs.registration
 import numpy as np
 from gym import spaces
 from six import StringIO
@@ -10,13 +9,6 @@ from six import StringIO
 from gym_puyopuyo.record import read_record
 from gym_puyopuyo.state import State
 from gym_puyopuyo.util import permute
-
-ENV_NAMES = {
-    "small": "PuyoPuyoEndlessSmall-v2",
-    "wide": "PuyoPuyoEndlessWide-v2",
-    "tsu": "PuyoPuyoEndlessTsu-v2",
-    "large": "PuyoPuyoEndlessLarge-v2",
-}
 
 
 class PuyoPuyoEndlessEnv(gym.Env):
@@ -108,37 +100,3 @@ class PuyoPuyoEndlessEnv(gym.Env):
         return (deals, colors)
 
     # TODO: Action affecting permutations (mirroring)
-
-
-def register():
-    gym.envs.registration.register(
-        id=ENV_NAMES["small"],
-        entry_point="gym_puyopuyo.env:PuyoPuyoEndlessEnv",
-        kwargs={"width": 3, "height": 8, "num_colors": 3, "num_deals": 3},
-        max_episode_steps=None,
-        reward_threshold=25.0,
-    )
-
-    gym.envs.registration.register(
-        id=ENV_NAMES["wide"],
-        entry_point="gym_puyopuyo.env:PuyoPuyoEndlessEnv",
-        kwargs={"width": 8, "height": 8, "num_colors": 4, "num_deals": 3},
-        max_episode_steps=None,
-        reward_threshold=25.0,
-    )
-
-    gym.envs.registration.register(
-        id=ENV_NAMES["tsu"],
-        entry_point="gym_puyopuyo.env:PuyoPuyoEndlessEnv",
-        kwargs={"width": 6, "height": 13, "num_colors": 4, "num_deals": 3, "tsu_rules": True},
-        max_episode_steps=None,
-        reward_threshold=25.0,
-    )
-
-    gym.envs.registration.register(
-        id=ENV_NAMES["large"],
-        entry_point="gym_puyopuyo.env:PuyoPuyoEndlessEnv",
-        kwargs={"width": 8, "height": 16, "num_colors": 5, "num_deals": 3},
-        max_episode_steps=None,
-        reward_threshold=25.0,
-    )

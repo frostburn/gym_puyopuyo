@@ -3,7 +3,8 @@ import pytest
 from gym.envs.registration import make
 from six import StringIO
 
-from gym_puyopuyo.env import ENV_NAMES
+from gym_puyopuyo.env import ENV_NAMES, ENV_PARAMS
+from gym_puyopuyo.env.versus import PuyoPuyoVersusEnv
 from gym_puyopuyo.util import print_up
 
 
@@ -19,9 +20,10 @@ def test_env(name):
     observation, reward, done, _info = env.step(a)
     msg = 'Step observation: {!r} not in space'.format(observation)
     assert ob_space.contains(observation), msg
-    permuted = env.unwrapped.permute_observation(observation)
-    print(permuted[0] == observation[0])
-    assert ob_space.contains(permuted), msg
+    if hasattr(env.unwrapped, "permute_observation"):
+        permuted = env.unwrapped.permute_observation(observation)
+        print(permuted[0] == observation[0])
+        assert ob_space.contains(permuted), msg
     assert np.isscalar(reward), "{} is not a scalar for {}".format(reward, env)
     assert isinstance(done, bool), "Expected {} to be a boolean".format(done)
 
@@ -53,6 +55,15 @@ def test_random_rollout(name):
             break
         else:
             assert action_mask[a]
+
+
+def test_custom_vs():
+    agent = lambda game: np.random.randint(0, 22)  # noqa: E731
+    env = PuyoPuyoVersusEnv(agent, ENV_PARAMS[ENV_NAMES["vs-tsu"]], garbage_clue_weight=1)
+    ob = env.reset()
+    assert env.observation_space.contains(ob)
+    env.step(11)
+    env.render()
 
 
 @pytest.mark.parametrize("name", [ENV_NAMES["small"], ENV_NAMES["tsu"]])
