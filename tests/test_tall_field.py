@@ -2,6 +2,7 @@ from __future__ import print_function
 
 import pytest
 
+from gym_puyopuyo import util
 from gym_puyopuyo.field import TallField
 
 _ = None
@@ -535,3 +536,17 @@ def test_valid_moves_tsu(width):
         field.data[3] = top & 255
         field.data[4] = top >> 8
         assert (_reference_valid_moves(field.data, width) == field._valid_moves(width))
+
+
+def test_render_in_place():
+    field = TallField(1)
+    for i in range(16):
+        field.data[i] = ((i + 4234) ** 3) % 256
+
+    for i in range(20):
+        print(i)
+    util.print_up(16)
+    print("Let's shift this a bit!", end="")
+    field.render(in_place=True)
+    print("hello")
+    field.render(width=6, height=13)

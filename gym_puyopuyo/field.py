@@ -26,10 +26,15 @@ class BottomField(object):
     def reset(self):
         self.data = bytearray(8 * self.num_layers)
 
-    def render(self, outfile=sys.stdout, width=None, height=None):
+    def render(self, outfile=sys.stdout, width=None, height=None, in_place=False):
         height = height or self.HEIGHT
+        width = width or self.WIDTH
+        if not in_place:
+            for _ in range(height):
+                outfile.write("\n")
+            util.print_up(height, outfile=outfile)
         for i in range(self.HEIGHT - height, self.HEIGHT):
-            for j in range(width or self.WIDTH):
+            for j in range(width):
                 empty = True
                 for k in range(self.num_colors):
                     puyo = self.data[i + self.HEIGHT * k] & (1 << j)
@@ -45,7 +50,8 @@ class BottomField(object):
                 if empty:
                     outfile.write("\u00b7 ")
                 util.print_reset(outfile=outfile)
-            outfile.write("\n")
+            util.print_down(1, outfile=outfile)
+            util.print_back(2 * width, outfile=outfile)
 
     def debug(self):
         core.bottom_render(self.data, self.num_layers)
@@ -56,7 +62,7 @@ class BottomField(object):
     def clear_groups(self, chain_number):
         did_clear = core.bottom_clear_groups(self.data, self.num_layers, self.has_garbage)
         if did_clear:
-            return chain_number * chain_number
+            return (chain_number + 1) ** 2
         return 0
 
     def resolve(self):
@@ -166,11 +172,16 @@ class TallField(object):
     def reset(self):
         self.data = bytearray(16 * self.num_layers)
 
-    def render(self, outfile=sys.stdout, width=None, height=None):
+    def render(self, outfile=sys.stdout, width=None, height=None, in_place=False):
         height = height or self.HEIGHT
+        width = width or self.WIDTH
+        if not in_place:
+            for _ in range(height):
+                outfile.write("\n")
+            util.print_up(height, outfile=outfile)
         for i in range(self.HEIGHT - height, self.HEIGHT):
             offset, row = divmod(i, 8)
-            for j in range(width or self.WIDTH):
+            for j in range(width):
                 empty = True
                 for k in range(self.num_colors):
                     if self.data[row + 8 * k + 8 * self.num_layers * offset] & (1 << j):
@@ -191,7 +202,8 @@ class TallField(object):
                 if empty:
                     outfile.write("\u00b7 ")
                 util.print_reset(outfile=outfile)
-            outfile.write("\n")
+            util.print_down(1, outfile=outfile)
+            util.print_back(2 * width, outfile=outfile)
 
     def debug(self):
         core.tall_render(self.data, self.num_layers)

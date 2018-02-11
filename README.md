@@ -65,7 +65,40 @@ It is also possible to play half moves where one of the puyos of the played piec
 
 ![Tsu environment rendered](https://user-images.githubusercontent.com/1253499/34640572-8e255518-f2fd-11e7-9748-f8ca48622bf0.png)
 
-### Record format
+### Versus environments
+All of the single player environments have corresponding versus modes where you play against a fixed reference opponent.
+Each player has their own field and the pieces are dealt in the same sequence for both players.
+The only mode of player interaction is through garbage puyos that falls from the top of the screen to the opponent's side.
+The amount of garbage sent depends on the chain made in the same way as score does in single player mode.
+If both players send garbage at the same time the difference is cancelled out.
+
+![Tsu versus environment rendered](https://user-images.githubusercontent.com/1253499/36076058-10b6aa76-0f60-11e8-8807-eeaf4a010208.png)
+
+### Observation encoding
+Versus mode is encoded in the same way as single player but there are a few extra variables and the two sides are represented as `dict` objects.
+The encoding is a two-tuple of
+```python
+{
+    "deals": array,  # The upcoming pieces with shape (n_colors, 3, 2)
+    "field": array,  # The playing field with shape (n_colors + 1, height, width)
+    "chain_number": int,  # The number of links so far in the currently resolving chain reaction
+    "pending_score": int,  # Score to be converted into garbage once the chain resolves
+    "pending_garbage": int,  # Garbage to be received once the chain resolves. Will be offset by pending_score before landing.
+    "all_clear": int,  # A boolean indicating if the player has an extra attack in reserve. Awarded by clearing the whole field.
+}  # One dict per player
+```
+
+
+## Rolling your own opponent
+If you wish to use your own agent as the opponent in a versus environment you can do it like this
+```python
+from gym_puyopuyo.env import ENV_PARAMS
+from gym_puyopuyo.env.versus import PuyoPuyoVersusEnv
+
+env = PuyoPuyoVersusEnv(my_agent, ENV_PARAMS["PuyoPuyoVersusTsu-v0"])
+```
+
+## Record format
 The library implements a human-readable JSON format for recording and playing back games.
 
 The data consists of a list of lists with each element corresponding to a puyo or empty space.
@@ -93,7 +126,7 @@ for observation, reward, done, info in env.read_record(data, include_last=True):
 ```
 ![Record rendered](https://user-images.githubusercontent.com/1253499/35029789-2e362ff4-fb65-11e7-9c07-2fc46ca9d38a.png)
 
-### Reference agents
+## Reference agents
 The library comes with reference agents for each of the environments.
 Please note that they operate directly on the underlying model instead of the encoded observations.
 ```python

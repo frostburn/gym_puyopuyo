@@ -14,7 +14,17 @@ ALLOWED_HEIGHTS = (BottomField.HEIGHT, TallField.HEIGHT, 13)
 class State(object):
     TESTING = False
 
-    def __init__(self, height, width, num_layers, num_deals=None, tsu_rules=False, has_garbage=False, deals=None):
+    def __init__(
+        self,
+        height,
+        width,
+        num_layers,
+        num_deals=None,
+        tsu_rules=False,
+        has_garbage=False,
+        deals=None,
+        seed=None
+    ):
         if height not in ALLOWED_HEIGHTS:
             raise NotImplementedError("Only heights {} supported".format(ALLOWED_HEIGHTS))
         if width > BottomField.WIDTH:
@@ -35,7 +45,7 @@ class State(object):
         self.num_deals = num_deals
         self.garbage_x = 0 if has_garbage else None
         self.make_actions()
-        self.seed()
+        self.seed(seed)
         if deals is None:
             self.make_deals()
         else:
@@ -66,7 +76,7 @@ class State(object):
         if isinstance(self.field, BottomField):
             return self.max_chain ** 2
         else:
-            return self.max_chain * 999  # FIXME: This overshoots a lot
+            return 10 * self.width * self.height * 999 * self.max_chain  # FIXME: This overshoots a lot
 
     def seed(self, seed=None):
         self.np_random, seed = seeding.np_random(seed)
@@ -76,20 +86,25 @@ class State(object):
         self.field.reset()
         self.make_deals()
 
-    def render(self, outfile=sys.stdout):
-        self.field.render(outfile, width=self.width, height=self.height)
+    def render(self, outfile=sys.stdout, in_place=False):
+        if not in_place:
+            for _ in range(self.height):
+                outfile.write("\n")
+            util.print_up(self.height, outfile=outfile)
+        self.field.render(outfile, width=self.width, height=self.height, in_place=True)
         util.print_up(self.height, outfile=outfile)
-        util.print_forward(2 * self.width + 4, outfile=outfile)
+        util.print_forward(2 * self.width + 2, outfile=outfile)
         remaining = self.height
-        for deal in self.deals:
+        for deal in self.deals[:self.height // 2]:
             for puyo in deal:
                 util.print_puyo(puyo, outfile=outfile)
             util.print_back(4, outfile=outfile)
             util.print_down(2, outfile=outfile)
             remaining -= 2
-        util.print_down(remaining, outfile=outfile)
         util.print_reset(outfile=outfile)
-        outfile.write("\n")
+        util.print_down(remaining, outfile=outfile)
+        util.print_back(2 * self.width + 2, outfile=outfile)
+        outfile.flush()
 
     def make_actions(self):
         self.actions = []
@@ -122,6 +137,8 @@ class State(object):
         ))
 
     def add_garbage(self, amount):
+        if not amount:
+            return
         if not self.has_garbage:
             raise ValueError("This state doesn't support garbage")
         if amount < 0:
@@ -137,6 +154,8 @@ class State(object):
             if self.garbage_x >= self.width:
                 self.garbage_x = 0
             stack = line + stack
+        if len(stack) > self.field.WIDTH * self.field.HEIGHT:
+            stack = [garbage] * (self.field.WIDTH * self.field.HEIGHT)
         self.field.overlay(stack)
         self.field.handle_gravity()
 
