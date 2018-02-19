@@ -5,6 +5,26 @@ This is a turn-based Puyo Puyo environment for https://github.com/openai/gym
 
 There are four available environments small, wide, Tsu and large.
 
+## Installing
+
+The core of the engine is written in C so you need a working compiler to install the package.
+Both Python 2 and 3 dev headers are required for the `tox` tests to pass.
+It is recommended to install the package inside a virtualenv.
+```shell
+sudo apt-get install build-essential python-dev python3-dev python-virtualenv
+```
+Create a virtualenv and install the project with pip
+```shell
+(venv)$ pip install -e .
+```
+Test that it works
+```shell
+(venv)$ pip install -r requirements-test.txt
+(venv)$ py.test
+(venv)$ flake8
+```
+You can also run `tox` to cover both Python 2 and 3.
+
 ## Usage
 ```python
 from gym_puyopuyo.env import register

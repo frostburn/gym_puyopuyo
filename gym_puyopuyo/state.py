@@ -182,13 +182,13 @@ class State(object):
         stack = [None] * (2 * self.field.WIDTH)
         if orientation == 0:
             stack[x] = puyo_a
-            stack[x+1] = puyo_b
+            stack[x + 1] = puyo_b
         elif orientation == 1:
             stack[x] = puyo_a
             stack[x + self.field.WIDTH] = puyo_b
         elif orientation == 2:
             stack[x] = puyo_b
-            stack[x+1] = puyo_a
+            stack[x + 1] = puyo_a
         elif orientation == 3:
             stack[x] = puyo_b
             stack[x + self.field.WIDTH] = puyo_a
