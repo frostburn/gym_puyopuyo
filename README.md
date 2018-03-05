@@ -27,7 +27,7 @@ You can also run `tox` to cover both Python 2 and 3.
 
 ## Usage
 ```python
-from gym_puyopuyo.env import register
+from gym_puyopuyo import register
 from gym import make
 
 register()
@@ -153,7 +153,7 @@ Please note that they operate directly on the underlying model instead of the en
 from gym.envs.registration import make
 
 from gym_puyopuyo.agent import TsuTreeSearchAgent
-from gym_puyopuyo.env import register
+from gym_puyopuyo import register
 
 register()
 
