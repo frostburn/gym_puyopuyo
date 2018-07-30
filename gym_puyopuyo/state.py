@@ -280,3 +280,12 @@ class State(object):
                 n, puyo = divmod(n, self.num_layers + 1)
                 if puyo > 0:
                     self.field._unsafe_set_puyo_at(x, y, puyo - 1)
+
+    def to_list(self):
+        result = []
+        for i, puyo in enumerate(self.field.to_list()):
+            y, x = divmod(i, self.field.WIDTH)
+            if x >= self.width:
+                continue
+            result.append(puyo)
+        return result
