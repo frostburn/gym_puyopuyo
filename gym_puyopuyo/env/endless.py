@@ -16,7 +16,9 @@ class PuyoPuyoEndlessEnv(gym.Env):
     Puyo Puyo environment. Single player endless mode.
     """
 
-    metadata = {"render.modes": ["human", "ansi"]}
+    TESTING = False
+
+    metadata = {"render.modes": ["human", "console", "ansi"]}
 
     def __init__(self, height, width, num_colors, num_deals, tsu_rules=False):
         self.state = State(height, width, num_colors, num_deals, tsu_rules=tsu_rules)
@@ -29,6 +31,10 @@ class PuyoPuyoEndlessEnv(gym.Env):
         ))
         self._seed()
 
+        self.viewer = None
+        self.anim_state = None
+        self.last_action = None
+
     def _seed(self, seed=None):
         return [self.state.seed(seed)]
 
@@ -36,9 +42,35 @@ class PuyoPuyoEndlessEnv(gym.Env):
         self.state.reset()
         return self.state.encode()
 
-    def _render(self, mode="human", close=False):
+    def _render(self, mode="console", close=False):
         if close:
+            if self.viewer:
+                self.viewer.close()
             return
+
+        if self.TESTING and mode == "human":
+            mode = "console"
+
+        if mode == "human":
+            from time import sleep
+            from gym_puyopuyo.rendering import ImageViewer, AnimationState
+            if not self.viewer:
+                self.viewer = ImageViewer()
+
+            if self.anim_state:
+                self.anim_state.state.deals[1:] = self.state.deals[:-1]
+            else:
+                self.anim_state = AnimationState(self.state.clone())
+
+            if self.last_action is not None:
+                self.anim_state.state.play_deal(*self.state.actions[self.last_action])
+                self.anim_state.infer_entities()
+
+            for frame in self.anim_state.resolve():
+                self.viewer.render_state(frame)
+                sleep(0.05)
+            return
+
         outfile = StringIO() if mode == "ansi" else sys.stdout
         self.state.render(outfile)
         return outfile
@@ -51,6 +83,7 @@ class PuyoPuyoEndlessEnv(gym.Env):
         return reward
 
     def _step(self, action):
+        self.last_action = action
         observation, reward = self._step_state(self.state, action)
         return observation, reward, (reward < 0), {"state": self.state}
 
