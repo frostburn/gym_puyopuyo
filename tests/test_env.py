@@ -155,3 +155,28 @@ def test_read_record():
     env = make(ENV_NAMES["tsu"])
     for observation, reward, done, info in env.read_record(stream):
         info["state"].render()
+
+
+@pytest.mark.parametrize(
+    "name",
+    [ENV_NAMES["boxed-small"], ENV_NAMES["boxed-wide"], ENV_NAMES["boxed-tsu"], ENV_NAMES["boxed-large"]]
+)
+def test_boxed(name):
+    env = make(name)
+    initial = env.reset()
+    env.render()
+    final, _, _, _ = env.step(env.observation_space.shape[2] * 2)
+    env.render()
+    print(initial)
+    print(final)
+
+    for i in range(env.observation_space.shape[0]):
+        # Check that the deal fell to the bottom.
+        assert (initial[i][2][0] == final[i][env.observation_space.shape[1] - 1][0])
+        assert (initial[i][2][1] == final[i][env.observation_space.shape[1] - 1][1])
+
+        # Check that the deals advanced.
+        assert (initial[i][0][0] == final[i][1][0])
+        assert (initial[i][0][1] == final[i][1][1])
+        assert (initial[i][1][0] == final[i][2][0])
+        assert (initial[i][1][1] == final[i][2][1])

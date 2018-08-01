@@ -1,3 +1,5 @@
+from __future__ import division
+
 import random
 import sys
 
@@ -133,3 +135,41 @@ class PuyoPuyoEndlessEnv(gym.Env):
         return (deals, colors)
 
     # TODO: Action affecting permutations (mirroring)
+
+
+class PuyoPuyoEndlessBoxedEnv(PuyoPuyoEndlessEnv):
+    """
+    Environment with observations in the form of a single box to make it compatible with plain CNN policies.
+    """
+    def __init__(self, *args, **kwargs):
+        super(PuyoPuyoEndlessBoxedEnv, self).__init__(*args, **kwargs)
+        self.observation_space = spaces.Box(0, 1, (
+            self.state.num_colors,
+            self.state.height + self.state.num_deals,
+            self.state.width))
+
+    def reshape_observation(self, observation):
+        deals, colors = observation
+        rows = np.zeros((self.state.num_colors, self.state.num_deals, self.state.width))
+        for j in range(self.state.num_deals):
+            for i in range(self.state.num_colors):
+                rows[i][self.state.num_deals - 1 - j][0] = deals[i][j][0]
+                rows[i][self.state.num_deals - 1 - j][1] = deals[i][j][1]
+        return np.hstack((rows, colors))
+
+    def _reset(self):
+        observation = super(PuyoPuyoEndlessBoxedEnv, self)._reset()
+        return self.reshape_observation(observation)
+
+    def _step(self, action):
+        observation, reward, done, info = super(PuyoPuyoEndlessBoxedEnv, self)._step(action)
+        observation = self.reshape_observation(observation)
+        return observation, reward, done, info
+
+    @classmethod
+    def permute_observation(cls, observation):
+        colors = np.copy(observation)
+        perm = list(range(len(colors)))
+        random.shuffle(perm)
+        permute(colors, perm)
+        return colors
