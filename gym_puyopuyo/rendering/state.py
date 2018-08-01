@@ -22,7 +22,6 @@ class Puyo(ColoredEntity):
         self.color = color
         self.falling = False
 
-
     def __eq__(self, other):
         if not isinstance(other, Puyo):
             return False

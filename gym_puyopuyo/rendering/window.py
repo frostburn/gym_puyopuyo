@@ -1,4 +1,4 @@
-from pathlib import Path
+import os.path
 
 from gym_puyopuyo.rendering.state import Garbage, Pop
 
@@ -9,7 +9,8 @@ class SpriteSheet(object):
     def __init__(self, filename=None):
         import pyglet  # Needs to be a local import to make the package load without a display.
         if not filename:
-            filename = Path(__file__).parent / "plain_skin.png"
+            dirname = os.path.dirname(__file__)
+            filename = os.path.join(dirname, "plain_skin.png")
         self.sheet = pyglet.image.load(str(filename))
         self.grid = pyglet.image.ImageGrid(self.sheet, 16, 16)
 
