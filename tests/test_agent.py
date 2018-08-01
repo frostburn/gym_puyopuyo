@@ -12,7 +12,7 @@ def test_agent(name):
 
     env.reset()
     state = env.unwrapped.state
-    for i in range(10):
+    for i in range(3):
         action = agent.get_action(state)
         _, _, done, info = env.step(action)
         state = info["state"]

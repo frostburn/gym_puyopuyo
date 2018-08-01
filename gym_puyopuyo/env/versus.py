@@ -1,6 +1,7 @@
 import sys
 
 import gym
+import numpy as np
 from gym import spaces
 from six import StringIO
 
@@ -27,8 +28,8 @@ class PuyoPuyoVersusEnv(gym.Env):
             max_steps //= 2
         max_score = player.max_score + max_steps * player.step_bonus
         player_space = spaces.Dict({
-            "deals": spaces.Box(0, 1, (player.num_colors, player.num_deals, 2)),
-            "field": spaces.Box(0, 1, (player.num_layers, player.height, player.width)),
+            "deals": spaces.Box(0, 1, (player.num_colors, player.num_deals, 2), dtype=np.float32),
+            "field": spaces.Box(0, 1, (player.num_layers, player.height, player.width), dtype=np.float32),
             "chain_number": spaces.Discrete(player.max_chain),
             "pending_score": spaces.Discrete(max_score),
             "pending_garbage": spaces.Discrete(max_score // player.target_score),
@@ -37,23 +38,21 @@ class PuyoPuyoVersusEnv(gym.Env):
         self.observation_space = spaces.Tuple((player_space, player_space))
         self.action_space = spaces.Discrete(len(player.actions))
         self.player = player
-        self._seed()
+        self.seed()
 
-    def _seed(self, seed=None):
+    def seed(self, seed=None):
         return [self.state.seed(seed)]
 
-    def _reset(self):
+    def reset(self):
         self.state.reset()
         return self.state.encode()
 
-    def _render(self, mode="human", close=False):
-        if close:
-            return
+    def render(self, mode="console"):
         outfile = StringIO() if mode == "ansi" else sys.stdout
         self.state.render(outfile)
         return outfile
 
-    def _step(self, action):
+    def step(self, action):
         root = self.get_root()
         root.players = root.players[::-1]
         opponent_action = self.opponent(root)

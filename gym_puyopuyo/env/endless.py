@@ -28,28 +28,27 @@ class PuyoPuyoEndlessEnv(gym.Env):
 
         self.action_space = spaces.Discrete(len(self.state.actions))
         self.observation_space = spaces.Tuple((
-            spaces.Box(0, 1, (self.state.num_colors, self.state.num_deals, 2)),
-            spaces.Box(0, 1, (self.state.num_colors, self.state.height, self.state.width)),
+            spaces.Box(0, 1, (self.state.num_colors, self.state.num_deals, 2), dtype=np.float32),
+            spaces.Box(0, 1, (self.state.num_colors, self.state.height, self.state.width), dtype=np.float32),
         ))
-        self._seed()
+        self.seed()
 
         self.viewer = None
         self.anim_state = None
         self.last_action = None
 
-    def _seed(self, seed=None):
+    def seed(self, seed=None):
         return [self.state.seed(seed)]
 
-    def _reset(self):
+    def reset(self):
         self.state.reset()
         return self.state.encode()
 
-    def _render(self, mode="console", close=False):
-        if close:
-            if self.viewer:
-                self.viewer.close()
-            return
+    def close(self):
+        if self.viewer:
+            self.viewer.close()
 
+    def render(self, mode="console"):
         if self.TESTING and mode == "human":
             mode = "console"
 
@@ -84,7 +83,7 @@ class PuyoPuyoEndlessEnv(gym.Env):
             return self.state.encode(), reward
         return reward
 
-    def _step(self, action):
+    def step(self, action):
         self.last_action = action
         observation, reward = self._step_state(self.state, action)
         return observation, reward, (reward < 0), {"state": self.state}
@@ -146,7 +145,9 @@ class PuyoPuyoEndlessBoxedEnv(PuyoPuyoEndlessEnv):
         self.observation_space = spaces.Box(0, 1, (
             self.state.num_colors,
             self.state.height + self.state.num_deals,
-            self.state.width))
+            self.state.width),
+            dtype=np.float32,
+        )
 
     def reshape_observation(self, observation):
         deals, colors = observation
@@ -157,12 +158,12 @@ class PuyoPuyoEndlessBoxedEnv(PuyoPuyoEndlessEnv):
                 rows[i][self.state.num_deals - 1 - j][1] = deals[i][j][1]
         return np.hstack((rows, colors))
 
-    def _reset(self):
-        observation = super(PuyoPuyoEndlessBoxedEnv, self)._reset()
+    def reset(self):
+        observation = super(PuyoPuyoEndlessBoxedEnv, self).reset()
         return self.reshape_observation(observation)
 
-    def _step(self, action):
-        observation, reward, done, info = super(PuyoPuyoEndlessBoxedEnv, self)._step(action)
+    def step(self, action):
+        observation, reward, done, info = super(PuyoPuyoEndlessBoxedEnv, self).step(action)
         observation = self.reshape_observation(observation)
         return observation, reward, done, info
 
