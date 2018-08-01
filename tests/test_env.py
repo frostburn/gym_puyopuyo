@@ -29,13 +29,11 @@ def test_env(name):
 
     for mode in env.metadata.get('render.modes', []):
         env.render(mode=mode)
-    env.render(close=True)
+    env.close()
 
     # Make sure we can render the environment after close.
     for mode in env.metadata.get('render.modes', []):
         env.render(mode=mode)
-    env.render(close=True)
-
     env.close()
 
 

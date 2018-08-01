@@ -37,23 +37,21 @@ class PuyoPuyoVersusEnv(gym.Env):
         self.observation_space = spaces.Tuple((player_space, player_space))
         self.action_space = spaces.Discrete(len(player.actions))
         self.player = player
-        self._seed()
+        self.seed()
 
-    def _seed(self, seed=None):
+    def seed(self, seed=None):
         return [self.state.seed(seed)]
 
-    def _reset(self):
+    def reset(self):
         self.state.reset()
         return self.state.encode()
 
-    def _render(self, mode="human", close=False):
-        if close:
-            return
+    def render(self, mode="console"):
         outfile = StringIO() if mode == "ansi" else sys.stdout
         self.state.render(outfile)
         return outfile
 
-    def _step(self, action):
+    def step(self, action):
         root = self.get_root()
         root.players = root.players[::-1]
         opponent_action = self.opponent(root)
