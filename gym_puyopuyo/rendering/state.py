@@ -6,10 +6,22 @@ class Entity(object):
         return False
 
 
-class Puyo(Entity):
+class ColoredEntity(Entity):
+    @property
+    def sprite_color(self):
+        """Shuffle colors to be consistent with ansi rendering"""
+        if self.color == 2:
+            return 3
+        elif self.color == 3:
+            return 2
+        return self.color
+
+
+class Puyo(ColoredEntity):
     def __init__(self, color):
         self.color = color
         self.falling = False
+
 
     def __eq__(self, other):
         if not isinstance(other, Puyo):
@@ -22,7 +34,7 @@ class Puyo(Entity):
         return "{}({})".format(self.__class__.__name__, self.color)
 
 
-class Pop(Entity):
+class Pop(ColoredEntity):
     MAX_AGE = 2
 
     def __init__(self, color):

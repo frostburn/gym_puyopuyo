@@ -1,28 +1,26 @@
+from pathlib import Path
+
 from gym_puyopuyo.rendering.state import Garbage, Pop
 
 
 class SpriteSheet(object):
     BLOCK_WIDTH = 31
 
-    def __init__(self, filename="plain_skin.png"):
+    def __init__(self, filename=None):
         import pyglet  # Needs to be a local import to make the package load without a display.
-        self.sheet = pyglet.image.load(filename)
+        if not filename:
+            filename = Path(__file__).parent / "plain_skin.png"
+        self.sheet = pyglet.image.load(str(filename))
         self.grid = pyglet.image.ImageGrid(self.sheet, 16, 16)
 
     def get_sprite(self, entity, neighbours):
         if isinstance(entity, Garbage):
             return self.grid[3, 6]
         elif isinstance(entity, Pop):
-            return self.grid[5, 6 + 2 * entity.color + entity.age]
+            return self.grid[5, 6 + 2 * entity.sprite_color + entity.age]
         neighbours = [n == entity for n in neighbours]
         index = neighbours[0] + 2 * neighbours[1] + 4 * neighbours[2] + 8 * neighbours[3]
-        color = entity.color
-        # Shuffle colors to be consistent with ansi rendering
-        if color == 2:
-            color = 3
-        elif color == 3:
-            color = 2
-        return self.grid[15 - color, index]
+        return self.grid[15 - entity.sprite_color, index]
 
 
 class ImageViewer(object):
