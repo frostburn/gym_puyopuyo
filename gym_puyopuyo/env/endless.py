@@ -28,8 +28,8 @@ class PuyoPuyoEndlessEnv(gym.Env):
 
         self.action_space = spaces.Discrete(len(self.state.actions))
         self.observation_space = spaces.Tuple((
-            spaces.Box(0, 1, (self.state.num_colors, self.state.num_deals, 2)),
-            spaces.Box(0, 1, (self.state.num_colors, self.state.height, self.state.width)),
+            spaces.Box(0, 1, (self.state.num_colors, self.state.num_deals, 2), dtype=np.float32),
+            spaces.Box(0, 1, (self.state.num_colors, self.state.height, self.state.width), dtype=np.float32),
         ))
         self.seed()
 
@@ -145,7 +145,9 @@ class PuyoPuyoEndlessBoxedEnv(PuyoPuyoEndlessEnv):
         self.observation_space = spaces.Box(0, 1, (
             self.state.num_colors,
             self.state.height + self.state.num_deals,
-            self.state.width))
+            self.state.width),
+            dtype=np.float32,
+        )
 
     def reshape_observation(self, observation):
         deals, colors = observation

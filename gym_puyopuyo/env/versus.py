@@ -1,6 +1,7 @@
 import sys
 
 import gym
+import numpy as np
 from gym import spaces
 from six import StringIO
 
@@ -27,8 +28,8 @@ class PuyoPuyoVersusEnv(gym.Env):
             max_steps //= 2
         max_score = player.max_score + max_steps * player.step_bonus
         player_space = spaces.Dict({
-            "deals": spaces.Box(0, 1, (player.num_colors, player.num_deals, 2)),
-            "field": spaces.Box(0, 1, (player.num_layers, player.height, player.width)),
+            "deals": spaces.Box(0, 1, (player.num_colors, player.num_deals, 2), dtype=np.float32),
+            "field": spaces.Box(0, 1, (player.num_layers, player.height, player.width), dtype=np.float32),
             "chain_number": spaces.Discrete(player.max_chain),
             "pending_score": spaces.Discrete(max_score),
             "pending_garbage": spaces.Discrete(max_score // player.target_score),
