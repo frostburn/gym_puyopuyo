@@ -55,13 +55,14 @@ class PuyoPuyoEndlessEnv(gym.Env):
         if mode == "human":
             from time import sleep
             from gym_puyopuyo.rendering import ImageViewer, AnimationState
-            if not self.viewer:
-                self.viewer = ImageViewer()
 
             if self.anim_state:
                 self.anim_state.state.deals[1:] = self.state.deals[:-1]
             else:
                 self.anim_state = AnimationState(self.state.clone())
+
+            if not self.viewer:
+                self.viewer = ImageViewer(width=self.anim_state.width + 4, height=self.anim_state.height)
 
             if self.last_action is not None:
                 self.anim_state.state.play_deal(*self.state.actions[self.last_action])

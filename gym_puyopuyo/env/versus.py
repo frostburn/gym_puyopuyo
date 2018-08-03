@@ -13,6 +13,8 @@ class PuyoPuyoVersusEnv(gym.Env):
     Puyo Puyo environment. Versus mode.
     """
 
+    TESTING = False
+
     metadata = {"render.modes": ["human", "ansi"]}
 
     def __init__(self, opponent, state_params, garbage_clue_weight=0):
@@ -40,6 +42,10 @@ class PuyoPuyoVersusEnv(gym.Env):
         self.player = player
         self.seed()
 
+        self.viewer = None
+        self.anim_states = [None, None]
+        self.last_actions = [None, None]
+
     def seed(self, seed=None):
         return [self.state.seed(seed)]
 
@@ -47,15 +53,73 @@ class PuyoPuyoVersusEnv(gym.Env):
         self.state.reset()
         return self.state.encode()
 
+    def close(self):
+        if self.viewer:
+            self.viewer.close()
+
     def render(self, mode="console"):
+        if self.TESTING and mode == "human":
+            mode = "console"
+
+        if mode == "human":
+            from time import sleep
+            from gym_puyopuyo.rendering import ImageViewer, AnimationState
+
+            for i in range(len(self.state.players)):
+                player = self.state.players[i]
+                if self.anim_states[i]:
+                    self.anim_states[i].state.deals[1:] = player.deals[:-1]
+                    self.anim_states[i].state.field.data[:] = player.field.data
+                else:
+                    self.anim_states[i] = AnimationState(player.clone())
+                if self.last_actions[i] is not None:
+                    # TODO: Intra step frames
+                    # self.anim_states[i].state.play_deal(*player.actions[self.last_actions[i]])
+                    self.anim_states[i].infer_entities()
+
+            if not self.viewer:
+                self.viewer = ImageViewer(
+                    width=(self.anim_states[0].width + 5) * len(self.state.players) - 1,
+                    height=self.anim_states[0].height
+                )
+
+            # TODO: Synchronous gravity resolution
+            # persistent_frames = [None, None]
+            # for frames in zip_longest(*(state.resolve() for state in self.anim_states)):
+            #     self.viewer.begin_flip()
+            #     for i, frame in enumerate(frames):
+            #         if frame:
+            #             persistent_frames[i] = frame
+            #         self.viewer.render_state(
+            #             persistent_frames[i],
+            #             x_offset=i * (frame.width + 5),
+            #             flip=False
+            #         )
+            #     self.viewer.end_flip()
+            #     sleep(0.05)
+
+            self.viewer.begin_flip()
+            for i, frame in enumerate(self.anim_states):
+                self.viewer.render_state(
+                    frame,
+                    x_offset=i * (frame.width + 5),
+                    flip=False
+                )
+            self.viewer.end_flip()
+            sleep(0.5)
+
+            return
+
         outfile = StringIO() if mode == "ansi" else sys.stdout
         self.state.render(outfile)
         return outfile
 
     def step(self, action):
+        self.last_actions[0] = action
         root = self.get_root()
         root.players = root.players[::-1]
         opponent_action = self.opponent(root)
+        self.last_actions[1] = opponent_action
         acts = self.player.actions
         reward, garbage, done = self.state.step([acts[action], acts[opponent_action]])
         reward += self.garbage_clue_weight * garbage

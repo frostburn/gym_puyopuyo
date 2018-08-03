@@ -25,12 +25,16 @@ class SpriteSheet(object):
 
 
 class ImageViewer(object):
-    def __init__(self, display=None):
+    def __init__(self, width, height, display=None):
         from pyglet.window import Window
-        self.display = display
-        self.window = Window(width=512, height=512, display=self.display)
-        self.isopen = True
         self.sheet = SpriteSheet()
+        self.display = display
+        self.window = Window(
+            width=width * self.sheet.BLOCK_WIDTH,
+            height=height * self.sheet.BLOCK_WIDTH,
+            display=self.display
+        )
+        self.isopen = True
         self.init_blend()
 
     def init_blend(self):
@@ -40,10 +44,9 @@ class ImageViewer(object):
         glEnable(GL_BLEND)
         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA)
 
-    def render_state(self, state):
-        self.window.clear()
-        self.window.switch_to()
-        self.window.dispatch_events()
+    def render_state(self, state, x_offset=0, flip=True):
+        if flip:
+            self.begin_flip()
         for i, entity in enumerate(state.entities):
             if entity is None:
                 continue
@@ -55,7 +58,7 @@ class ImageViewer(object):
             neighbours[2] = state[x + 1, y]
             sprite = self.sheet.get_sprite(entity, neighbours)
             sprite.blit(
-                x * self.sheet.BLOCK_WIDTH,
+                (x + x_offset) * self.sheet.BLOCK_WIDTH,
                 (state.height - 1 - y) * self.sheet.BLOCK_WIDTH,
             )
         for i, deal in enumerate(state.deals):
@@ -65,9 +68,19 @@ class ImageViewer(object):
                 # neighbours[2 + j] = deal[1 - j]
                 sprite = self.sheet.get_sprite(entity, neighbours)
                 sprite.blit(
-                    (state.width + 2 + j) * self.sheet.BLOCK_WIDTH,
+                    (state.width + 2 + j + x_offset) * self.sheet.BLOCK_WIDTH,
                     (state.height - 1 - 2 * i) * self.sheet.BLOCK_WIDTH,
                 )
+
+        if flip:
+            self.end_flip()
+
+    def begin_flip(self):
+        self.window.clear()
+        self.window.switch_to()
+        self.window.dispatch_events()
+
+    def end_flip(self):
         self.window.flip()
 
     def save_screenshot(self, filename):
