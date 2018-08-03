@@ -81,7 +81,7 @@ class BottomField(object):
 
     def encode(self):
         data = core.bottom_encode(self.data, self.num_layers)
-        return np.fromstring(data, dtype="int8").reshape(self.num_layers, self.HEIGHT, self.WIDTH)
+        return np.fromstring(data, dtype=np.int8).reshape(self.num_layers, self.HEIGHT, self.WIDTH)
 
     def mirror(self):
         core.mirror(self.data, self.num_layers)
@@ -219,7 +219,7 @@ class TallField(object):
 
     def encode(self):
         data = core.tall_encode(self.data, self.num_layers)
-        return np.fromstring(data, dtype="int8").reshape(self.num_layers, self.HEIGHT, self.WIDTH)
+        return np.fromstring(data, dtype=np.int8).reshape(self.num_layers, self.HEIGHT, self.WIDTH)
 
     def overlay(self, stack):
         layer = TallField.from_list(stack, num_layers=self.num_layers)

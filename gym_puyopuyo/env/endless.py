@@ -28,8 +28,8 @@ class PuyoPuyoEndlessEnv(gym.Env):
 
         self.action_space = spaces.Discrete(len(self.state.actions))
         self.observation_space = spaces.Tuple((
-            spaces.Box(0, 1, (self.state.num_colors, self.state.num_deals, 2), dtype=np.float32),
-            spaces.Box(0, 1, (self.state.num_colors, self.state.height, self.state.width), dtype=np.float32),
+            spaces.Box(0, 1, (self.state.num_colors, self.state.num_deals, 2), dtype=np.int8),
+            spaces.Box(0, 1, (self.state.num_colors, self.state.height, self.state.width), dtype=np.int8),
         ))
         self.seed()
 
@@ -144,28 +144,24 @@ class PuyoPuyoEndlessBoxedEnv(PuyoPuyoEndlessEnv):
         super(PuyoPuyoEndlessBoxedEnv, self).__init__(*args, **kwargs)
         self.observation_space = spaces.Box(0, 1, (
             self.state.num_colors,
-            self.state.height + self.state.num_deals,
+            self.state.height + 1 + self.state.num_deals,
             self.state.width),
-            dtype=np.float32,
+            dtype=np.int8,
         )
 
-    def reshape_observation(self, observation):
-        deals, colors = observation
-        rows = np.zeros((self.state.num_colors, self.state.num_deals, self.state.width))
-        for j in range(self.state.num_deals):
-            for i in range(self.state.num_colors):
-                rows[i][self.state.num_deals - 1 - j][0] = deals[i][j][0]
-                rows[i][self.state.num_deals - 1 - j][1] = deals[i][j][1]
-        return np.hstack((rows, colors))
+    def encode(self):
+        field = self.state.encode_field()
+        deals = self.state.encode_deals_box()
+        padding = np.zeros((self.state.num_colors, 1, self.state.width), dtype=np.int8)
+        return np.hstack((deals, padding, field))
 
     def reset(self):
-        observation = super(PuyoPuyoEndlessBoxedEnv, self).reset()
-        return self.reshape_observation(observation)
+        super(PuyoPuyoEndlessBoxedEnv, self).reset()
+        return self.encode()
 
     def step(self, action):
-        observation, reward, done, info = super(PuyoPuyoEndlessBoxedEnv, self).step(action)
-        observation = self.reshape_observation(observation)
-        return observation, reward, done, info
+        _, reward, done, info = super(PuyoPuyoEndlessBoxedEnv, self).step(action)
+        return self.encode(), reward, done, info
 
     @classmethod
     def permute_observation(cls, observation):
