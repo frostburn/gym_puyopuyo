@@ -291,11 +291,13 @@ class State(object):
                 if puyo > 0:
                     self.field._unsafe_set_puyo_at(x, y, puyo - 1)
 
-    def to_list(self):
+    def to_list(self, offset=False):
         result = []
         for i, puyo in enumerate(self.field.to_list()):
             y, x = divmod(i, self.field.WIDTH)
             if x >= self.width:
+                continue
+            if offset and y < self.field.offset:
                 continue
             result.append(puyo)
         return result

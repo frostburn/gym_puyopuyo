@@ -63,8 +63,7 @@ class AnimationState(object):
 
     @property
     def height(self):
-        # TODO: Figure out gravity for tsu
-        return self.state.field.HEIGHT
+        return self.state.height
 
     @property
     def tsu_rules(self):
@@ -78,7 +77,7 @@ class AnimationState(object):
         return result
 
     def infer_entities(self):
-        self.entities = [self.infer_entity(puyo) for puyo in self.state.to_list()]
+        self.entities = [self.infer_entity(puyo) for puyo in self.state.to_list(offset=True)]
 
     def infer_entity(self, color):
         if color is None:
@@ -113,10 +112,10 @@ class AnimationState(object):
 
         self.state.field.handle_gravity()
 
-        old_field = self.state.to_list()
+        old_field = self.state.to_list(offset=True)
         score = self.state.field.clear_groups(1)
         if score:
-            new_field = self.state.to_list()
+            new_field = self.state.to_list(offset=True)
             for i in range(len(new_field)):
                 new = new_field[i]
                 old = old_field[i]

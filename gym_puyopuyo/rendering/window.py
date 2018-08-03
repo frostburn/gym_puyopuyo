@@ -45,6 +45,8 @@ class ImageViewer(object):
         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA)
 
     def render_state(self, state, x_offset=0, flip=True):
+        import pyglet
+        darken = pyglet.image.SolidColorImagePattern(color=(0, 0, 0, 128))
         if flip:
             self.begin_flip()
         for i, entity in enumerate(state.entities):
@@ -56,11 +58,22 @@ class ImageViewer(object):
             neighbours[0] = state[x, y + 1]
             neighbours[3] = state[x - 1, y]
             neighbours[2] = state[x + 1, y]
+            if state.tsu_rules:
+                if y == 0:
+                    neighbours = [None] * 4
+                elif y == 1:
+                    neighbours[1] = None
             sprite = self.sheet.get_sprite(entity, neighbours)
             sprite.blit(
                 (x + x_offset) * self.sheet.BLOCK_WIDTH,
                 (state.height - 1 - y) * self.sheet.BLOCK_WIDTH,
             )
+            if state.tsu_rules and y == 0:
+                mask = darken.create_image(self.sheet.BLOCK_WIDTH + 1, self.sheet.BLOCK_WIDTH)
+                mask.blit(
+                    (x + x_offset) * self.sheet.BLOCK_WIDTH,
+                    (state.height - 1 - y) * self.sheet.BLOCK_WIDTH,
+                )
         for i, deal in enumerate(state.deals):
             for j, entity in enumerate(deal):
                 neighbours = [None] * 4

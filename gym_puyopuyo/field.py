@@ -17,6 +17,7 @@ class BottomField(object):
     def __init__(self, num_layers, has_garbage=False):
         self.num_layers = num_layers
         self.has_garbage = has_garbage
+        self.offset = 0
         if has_garbage:
             self.num_colors = num_layers - 1
         else:
