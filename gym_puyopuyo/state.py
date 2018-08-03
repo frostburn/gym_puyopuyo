@@ -170,7 +170,7 @@ class State(object):
         """
         Encode deals so that they can be stacked on top of the encoded field.
         """
-        box = np.zeros((self.num_colors, self.num_deals, self.width), dtype=np.int8)
+        box = np.zeros((self.num_layers, self.num_deals, self.width), dtype=np.int8)
         for i, deal in enumerate(self.deals):
             box[deal[0]][self.num_deals - 1 - i][0] = 1
             box[deal[1]][self.num_deals - 1 - i][1] = 1

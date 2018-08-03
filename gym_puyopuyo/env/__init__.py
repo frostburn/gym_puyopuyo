@@ -10,16 +10,22 @@ ENV_NAMES = {
     "tsu": "PuyoPuyoEndlessTsu-v2",
     "large": "PuyoPuyoEndlessLarge-v2",
 
-    "boxed-small": "PuyoPuyoEndlessBoxedSmall-v1",
-    "boxed-wide": "PuyoPuyoEndlessBoxedWide-v1",
-    "boxed-tsu": "PuyoPuyoEndlessBoxedTsu-v1",
-    "boxed-large": "PuyoPuyoEndlessBoxedLarge-v1",
+    "boxed-small": "PuyoPuyoEndlessBoxedSmall-v0",
+    "boxed-wide": "PuyoPuyoEndlessBoxedWide-v0",
+    "boxed-tsu": "PuyoPuyoEndlessBoxedTsu-v0",
+    "boxed-large": "PuyoPuyoEndlessBoxedLarge-v0",
 
     "vs-small": "PuyoPuyoVersusSmall-v0",
     "vs-small-easy": "PuyoPuyoVersusSmallEasy-v0",
     "vs-wide": "PuyoPuyoVersusWide-v0",
     "vs-tsu": "PuyoPuyoVersusTsu-v0",
     "vs-large": "PuyoPuyoVersusLarge-v0",
+
+    "vs-boxed-small": "PuyoPuyoVersusBoxedSmall-v0",
+    "vs-boxed-small-easy": "PuyoPuyoVersusBoxedSmallEasy-v0",
+    "vs-boxed-wide": "PuyoPuyoVersusBoxedWide-v0",
+    "vs-boxed-tsu": "PuyoPuyoVersusBoxedTsu-v0",
+    "vs-boxed-large": "PuyoPuyoVersusBoxedLarge-v0",
 }
 
 
@@ -160,11 +166,32 @@ def register():
         max_episode_steps=None,
         reward_threshold=1,
     )
+    gym.envs.register(
+        id=ENV_NAMES["vs-boxed-small"],
+        entry_point="gym_puyopuyo.env.versus:PuyoPuyoVersusBoxedEnv",
+        kwargs={
+            "opponent": agent,
+            "state_params": ENV_PARAMS[ENV_NAMES["vs-small"]],
+        },
+        max_episode_steps=None,
+        reward_threshold=1,
+    )
 
     agent = lambda game: game.players[0].np_random.randint(0, len(game.players[0].actions))  # noqa
     gym.envs.register(
         id=ENV_NAMES["vs-small-easy"],
         entry_point="gym_puyopuyo.env.versus:PuyoPuyoVersusEnv",
+        kwargs={
+            "opponent": agent,
+            "state_params": ENV_PARAMS[ENV_NAMES["vs-small"]],
+            "garbage_clue_weight": 0.01
+        },
+        max_episode_steps=None,
+        reward_threshold=1,
+    )
+    gym.envs.register(
+        id=ENV_NAMES["vs-boxed-small-easy"],
+        entry_point="gym_puyopuyo.env.versus:PuyoPuyoVersusBoxedEnv",
         kwargs={
             "opponent": agent,
             "state_params": ENV_PARAMS[ENV_NAMES["vs-small"]],
@@ -187,6 +214,16 @@ def register():
         max_episode_steps=None,
         reward_threshold=1,
     )
+    gym.envs.register(
+        id=ENV_NAMES["vs-boxed-wide"],
+        entry_point="gym_puyopuyo.env.versus:PuyoPuyoVersusBoxedEnv",
+        kwargs={
+            "opponent": agent,
+            "state_params": ENV_PARAMS[ENV_NAMES["vs-wide"]],
+        },
+        max_episode_steps=None,
+        reward_threshold=1,
+    )
 
     agent = TsuTreeSearchAgent()
     agent.depth = 2
@@ -201,6 +238,16 @@ def register():
         max_episode_steps=None,
         reward_threshold=1,
     )
+    gym.envs.register(
+        id=ENV_NAMES["vs-boxed-tsu"],
+        entry_point="gym_puyopuyo.env.versus:PuyoPuyoVersusBoxedEnv",
+        kwargs={
+            "opponent": agent,
+            "state_params": ENV_PARAMS[ENV_NAMES["vs-tsu"]],
+        },
+        max_episode_steps=None,
+        reward_threshold=1,
+    )
 
     agent = LargeTreeSearchAgent()
     agent.depth = 2
@@ -208,6 +255,16 @@ def register():
     gym.envs.register(
         id=ENV_NAMES["vs-large"],
         entry_point="gym_puyopuyo.env.versus:PuyoPuyoVersusEnv",
+        kwargs={
+            "opponent": agent,
+            "state_params": ENV_PARAMS[ENV_NAMES["vs-large"]],
+        },
+        max_episode_steps=None,
+        reward_threshold=1,
+    )
+    gym.envs.register(
+        id=ENV_NAMES["vs-boxed-large"],
+        entry_point="gym_puyopuyo.env.versus:PuyoPuyoVersusBoxedEnv",
         kwargs={
             "opponent": agent,
             "state_params": ENV_PARAMS[ENV_NAMES["vs-large"]],
