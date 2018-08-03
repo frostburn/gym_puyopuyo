@@ -68,7 +68,9 @@ class PuyoPuyoVersusEnv(gym.Env):
             for i in range(len(self.state.players)):
                 player = self.state.players[i]
                 if self.anim_states[i]:
-                    self.anim_states[i].state.deals[1:] = player.deals[:-1]
+                    # TODO: Intra step frames
+                    # self.anim_states[i].state.deals[1:] = player.deals[:-1]
+                    self.anim_states[i].state.deals[:] = player.deals[:-1]
                     self.anim_states[i].state.field.data[:] = player.field.data
                 else:
                     self.anim_states[i] = AnimationState(player.clone())
