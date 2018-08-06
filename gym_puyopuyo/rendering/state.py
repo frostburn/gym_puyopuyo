@@ -78,6 +78,8 @@ class AnimationState(object):
 
     def infer_entities(self):
         self.entities = [self.infer_entity(puyo) for puyo in self.state.to_list(offset=True)]
+        if self.tsu_rules:
+            self.all_entities = [self.infer_entity(puyo) for puyo in self.state.to_list(offset=False)]
 
     def infer_entity(self, color):
         if color is None:
@@ -145,6 +147,9 @@ class AnimationState(object):
         self.infer_entities()
 
     def step_gravity(self):
+        if self.tsu_rules:
+            return self.step_gravity_hack()
+
         changed = False
         for i, entity in reversed(list(enumerate(self.entities[:]))):
             if not entity:
@@ -157,6 +162,32 @@ class AnimationState(object):
                 changed = True
             else:
                 entity.falling = False
+        return changed
+
+    def get_hack(self, x, y):
+        if y >= self.state.field.HEIGHT:
+            return Ground()
+        if y < 0 or x < 0 or x >= self.width:
+            return None
+        return self.all_entities[x + y * self.width]
+
+    def set_hack(self, x, y, entity):
+        self.all_entities[x + y * self.width] = entity
+
+    def step_gravity_hack(self):
+        changed = False
+        for i, entity in reversed(list(enumerate(self.all_entities[:]))):
+            if not entity:
+                continue
+            y, x = divmod(i, self.width)
+            if self.get_hack(x, y + 1) is None:
+                self.set_hack(x, y + 1, entity)
+                self.set_hack(x, y, None)
+                entity.falling = True
+                changed = True
+            else:
+                entity.falling = False
+        self.entities[:] = self.all_entities[-len(self.entities):]
         return changed
 
     def to_list(self):

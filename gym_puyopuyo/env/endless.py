@@ -42,6 +42,9 @@ class PuyoPuyoEndlessEnv(gym.Env):
 
     def reset(self):
         self.state.reset()
+        if self.viewer:
+            self.anim_state = None
+            self.last_action = None
         return self.state.encode()
 
     def close(self):
@@ -66,6 +69,7 @@ class PuyoPuyoEndlessEnv(gym.Env):
 
             if self.last_action is not None:
                 self.anim_state.state.play_deal(*self.state.actions[self.last_action])
+                self.anim_state.state.deals.pop()
                 self.anim_state.infer_entities()
 
             for frame in self.anim_state.resolve():
