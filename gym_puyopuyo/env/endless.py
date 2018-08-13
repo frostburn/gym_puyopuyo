@@ -79,7 +79,8 @@ class PuyoPuyoEndlessEnv(gym.Env):
 
         outfile = StringIO() if mode == "ansi" else sys.stdout
         self.state.render(outfile)
-        return outfile
+        if mode == "ansi":
+            return outfile
 
     def _step_state(self, state, action, include_observations=True):
         action = self.state.actions[action]

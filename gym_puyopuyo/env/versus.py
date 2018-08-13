@@ -114,7 +114,8 @@ class PuyoPuyoVersusEnv(gym.Env):
 
         outfile = StringIO() if mode == "ansi" else sys.stdout
         self.state.render(outfile)
-        return outfile
+        if mode == "ansi":
+            return outfile
 
     def step(self, action):
         self.last_actions[0] = action
