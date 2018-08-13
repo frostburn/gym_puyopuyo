@@ -152,14 +152,14 @@ class PuyoPuyoEndlessBoxedEnv(PuyoPuyoEndlessEnv):
             self.state.num_colors,
             self.state.height + 1 + self.state.num_deals,
             self.state.width),
-            dtype=np.int8,
+            dtype=np.float32,
         )
 
     def encode(self):
         field = self.state.encode_field()
         deals = self.state.encode_deals_box()
         padding = np.zeros((self.state.num_colors, 1, self.state.width), dtype=np.int8)
-        return np.hstack((deals, padding, field))
+        return np.hstack((deals, padding, field)).astype(np.float32)
 
     def reset(self):
         super(PuyoPuyoEndlessBoxedEnv, self).reset()
