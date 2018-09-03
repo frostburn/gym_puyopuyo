@@ -148,9 +148,9 @@ class PuyoPuyoVersusBoxedEnv(PuyoPuyoVersusEnv):
         super(PuyoPuyoVersusBoxedEnv, self).__init__(*args, **kwargs)
         player = self.state.players[0]
         self.observation_space = spaces.Box(0, 1, (
-            player.num_layers,
             player.height + 1 + player.num_deals,
-            (player.width + 1) * len(self.state.players) - 1),
+            (player.width + 1) * len(self.state.players) - 1,
+            player.num_layers),
             dtype=np.float32,
         )
 
@@ -191,7 +191,8 @@ class PuyoPuyoVersusBoxedEnv(PuyoPuyoVersusEnv):
         box[player.num_layers - 1, 2, 0] = player.all_clear_pending
         box[opponent.num_layers - 1, 2, player.width + 1] = opponent.all_clear_pending
 
-        return box
+        # Convert to HWC to be compatible with TensorFlow conv2d.
+        return box.transpose(1, 2, 0)
 
     def reset(self):
         super(PuyoPuyoVersusBoxedEnv, self).reset()

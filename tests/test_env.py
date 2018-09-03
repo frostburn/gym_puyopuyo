@@ -157,24 +157,35 @@ def test_read_record():
 
 @pytest.mark.parametrize(
     "name",
-    [ENV_NAMES["boxed-small"], ENV_NAMES["boxed-wide"], ENV_NAMES["boxed-tsu"], ENV_NAMES["boxed-large"]]
+    [
+        ENV_NAMES["boxed-small"], ENV_NAMES["boxed-wide"], ENV_NAMES["boxed-tsu"], ENV_NAMES["boxed-large"],
+        ENV_NAMES["vs-boxed-small"], ENV_NAMES["vs-boxed-small-easy"],
+        ENV_NAMES["vs-boxed-wide"], ENV_NAMES["vs-boxed-tsu"], ENV_NAMES["vs-boxed-large"],
+    ]
 )
 def test_boxed(name):
     env = make(name)
     initial = env.reset()
     env.render()
-    final, _, _, _ = env.step(env.observation_space.shape[2] * 2)
+    height, width, num_layers = env.observation_space.shape
+    if name == ENV_NAMES["boxed-large"]:
+        assert height == (16 + 1 + 3)
+        assert width == 8
+        assert num_layers == 5
+    if "Versus" in name:
+        width = (width - 1) // 2
+    final, _, _, _ = env.step(width * 2)  # Drop straight down.
     env.render()
     print(initial)
     print(final)
 
-    for i in range(env.observation_space.shape[0]):
+    for i in range(num_layers):
         # Check that the deal fell to the bottom.
-        assert (initial[i][2][0] == final[i][env.observation_space.shape[1] - 1][0])
-        assert (initial[i][2][1] == final[i][env.observation_space.shape[1] - 1][1])
+        assert (initial[2, 0, i] == final[height - 1, 0, i])
+        assert (initial[2, 1, i] == final[height - 1, 1, i])
 
         # Check that the deals advanced.
-        assert (initial[i][0][0] == final[i][1][0])
-        assert (initial[i][0][1] == final[i][1][1])
-        assert (initial[i][1][0] == final[i][2][0])
-        assert (initial[i][1][1] == final[i][2][1])
+        assert (initial[0, 0, i] == final[1, 0, i])
+        assert (initial[0, 1, i] == final[1, 1, i])
+        assert (initial[1, 0, i] == final[2, 0, i])
+        assert (initial[1, 1, i] == final[2, 1, i])

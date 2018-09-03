@@ -10,10 +10,10 @@ ENV_NAMES = {
     "tsu": "PuyoPuyoEndlessTsu-v2",
     "large": "PuyoPuyoEndlessLarge-v2",
 
-    "boxed-small": "PuyoPuyoEndlessBoxedSmall-v0",
-    "boxed-wide": "PuyoPuyoEndlessBoxedWide-v0",
-    "boxed-tsu": "PuyoPuyoEndlessBoxedTsu-v0",
-    "boxed-large": "PuyoPuyoEndlessBoxedLarge-v0",
+    "boxed-small": "PuyoPuyoEndlessBoxedSmall-v1",
+    "boxed-wide": "PuyoPuyoEndlessBoxedWide-v1",
+    "boxed-tsu": "PuyoPuyoEndlessBoxedTsu-v1",
+    "boxed-large": "PuyoPuyoEndlessBoxedLarge-v1",
 
     "vs-small": "PuyoPuyoVersusSmall-v0",
     "vs-small-easy": "PuyoPuyoVersusSmallEasy-v0",
@@ -21,11 +21,11 @@ ENV_NAMES = {
     "vs-tsu": "PuyoPuyoVersusTsu-v0",
     "vs-large": "PuyoPuyoVersusLarge-v0",
 
-    "vs-boxed-small": "PuyoPuyoVersusBoxedSmall-v0",
-    "vs-boxed-small-easy": "PuyoPuyoVersusBoxedSmallEasy-v0",
-    "vs-boxed-wide": "PuyoPuyoVersusBoxedWide-v0",
-    "vs-boxed-tsu": "PuyoPuyoVersusBoxedTsu-v0",
-    "vs-boxed-large": "PuyoPuyoVersusBoxedLarge-v0",
+    "vs-boxed-small": "PuyoPuyoVersusBoxedSmall-v1",
+    "vs-boxed-small-easy": "PuyoPuyoVersusBoxedSmallEasy-v1",
+    "vs-boxed-wide": "PuyoPuyoVersusBoxedWide-v1",
+    "vs-boxed-tsu": "PuyoPuyoVersusBoxedTsu-v1",
+    "vs-boxed-large": "PuyoPuyoVersusBoxedLarge-v1",
 }
 
 

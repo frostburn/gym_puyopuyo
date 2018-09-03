@@ -149,9 +149,9 @@ class PuyoPuyoEndlessBoxedEnv(PuyoPuyoEndlessEnv):
     def __init__(self, *args, **kwargs):
         super(PuyoPuyoEndlessBoxedEnv, self).__init__(*args, **kwargs)
         self.observation_space = spaces.Box(0, 1, (
-            self.state.num_colors,
             self.state.height + 1 + self.state.num_deals,
-            self.state.width),
+            self.state.width,
+            self.state.num_colors),
             dtype=np.float32,
         )
 
@@ -159,7 +159,9 @@ class PuyoPuyoEndlessBoxedEnv(PuyoPuyoEndlessEnv):
         field = self.state.encode_field()
         deals = self.state.encode_deals_box()
         padding = np.zeros((self.state.num_colors, 1, self.state.width), dtype=np.int8)
-        return np.hstack((deals, padding, field)).astype(np.float32)
+        observation = np.hstack((deals, padding, field)).astype(np.float32)
+        # Convert to HWC to be compatible with TensorFlow conv2d.
+        return observation.transpose(1, 2, 0)
 
     def reset(self):
         super(PuyoPuyoEndlessBoxedEnv, self).reset()
@@ -171,8 +173,8 @@ class PuyoPuyoEndlessBoxedEnv(PuyoPuyoEndlessEnv):
 
     @classmethod
     def permute_observation(cls, observation):
-        colors = np.copy(observation)
+        colors = observation.transpose(2, 0, 1)
         perm = list(range(len(colors)))
         random.shuffle(perm)
         permute(colors, perm)
-        return colors
+        return colors.transpose(1, 2, 0)
