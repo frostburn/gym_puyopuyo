@@ -5,8 +5,6 @@ This is a turn-based Puyo Puyo environment for https://github.com/openai/gym
 
 There are four available environments small, wide, Tsu and large.
 
-
-
 ## Installing
 
 The core of the engine is written in C so you need a working compiler to install the package.
