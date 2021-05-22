@@ -2,8 +2,7 @@ sudo: false
 language: python
 cache: pip
 python:
-  - "2.7"
-  - "3.5"
+  - "3.9"
 env:
   - CFLAGS="-std=c99"
 install:
