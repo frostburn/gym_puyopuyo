@@ -9,11 +9,13 @@ ENV_NAMES = {
     "wide": "PuyoPuyoEndlessWide-v2",
     "tsu": "PuyoPuyoEndlessTsu-v2",
     "large": "PuyoPuyoEndlessLarge-v2",
+    "normal": "PuyoPuyoEndlessNormal-v2",
 
     "boxed-small": "PuyoPuyoEndlessBoxedSmall-v1",
     "boxed-wide": "PuyoPuyoEndlessBoxedWide-v1",
     "boxed-tsu": "PuyoPuyoEndlessBoxedTsu-v1",
     "boxed-large": "PuyoPuyoEndlessBoxedLarge-v1",
+    "boxed-normal": "PuyoPuyoEndlessBoxedNormal-v1",
 
     "vs-small": "PuyoPuyoVersusSmall-v0",
     "vs-small-easy": "PuyoPuyoVersusSmallEasy-v0",
@@ -117,6 +119,14 @@ def register():
         reward_threshold=25.0,
     )
 
+    gym.envs.register(
+        id=ENV_NAMES["normal"],
+        entry_point="gym_puyopuyo.env.endless:PuyoPuyoEndlessEnv",
+        kwargs={"width": 6, "height": 12, "num_colors": 4, "num_deals": 2, "tsu_rules": False},
+        max_episode_steps=None,
+        reward_threshold=25.0,
+    )
+
     # Single player with a contiguous observation space
 
     gym.envs.register(
@@ -147,6 +157,14 @@ def register():
         id=ENV_NAMES["boxed-large"],
         entry_point="gym_puyopuyo.env.endless:PuyoPuyoEndlessBoxedEnv",
         kwargs={"width": 8, "height": 16, "num_colors": 5, "num_deals": 3},
+        max_episode_steps=None,
+        reward_threshold=25.0,
+    )
+
+    gym.envs.register(
+        id=ENV_NAMES["boxed-normal"],
+        entry_point="gym_puyopuyo.env.endless:PuyoPuyoEndlessEnv",
+        kwargs={"width": 6, "height": 12, "num_colors": 4, "num_deals": 2, "tsu_rules": False},
         max_episode_steps=None,
         reward_threshold=25.0,
     )
